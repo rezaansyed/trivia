@@ -1,6 +1,6 @@
 module UglyTrivia
   class Game
-    def  initialize
+    def initialize
       @players = []
       @places = Array.new(6, 0)
       @purses = Array.new(6, 0)
@@ -118,11 +118,7 @@ module UglyTrivia
           @current_player = 0 if @current_player == @players.length
           true
         end
-
-
-
       else
-
         puts "Answer was corrent!!!!"
         @purses[@current_player] += 1
         puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
