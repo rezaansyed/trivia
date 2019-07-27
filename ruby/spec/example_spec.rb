@@ -156,20 +156,14 @@ describe "overall game" do
       "chunky now has 5 Gold Coins.",
     ])
 
-    game.roll(1)
+    game.roll(2)
     expect(output.consume_lines).to eq([
       "alex is the current player",
-      "They have rolled a 1",
-      "alex is getting out of the penalty box",
-      "alex's new location is 6",
-      "The category is Sports",
-      "Sports Question 4",
+      "They have rolled a 2",
+      "alex is not getting out of the penalty box",
     ])
     expect(game.was_correctly_answered).to eq(true)
-    expect(output.consume_lines).to eq([
-      "Answer was correct!!!!",
-      "alex now has 5 Gold Coins.",
-    ])
+    expect(output.consume_lines).to be_empty
 
     game.roll(2)
     expect(output.consume_lines).to eq([

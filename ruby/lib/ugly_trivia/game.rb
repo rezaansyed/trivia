@@ -92,7 +92,9 @@ module UglyTrivia
         end
       else
         @output.write "Answer was correct!!!!"
+
         current_player.purse.add_coin
+
         @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
 
         @players.move_to_next_player
