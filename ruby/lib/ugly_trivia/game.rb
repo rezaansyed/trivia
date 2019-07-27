@@ -87,13 +87,12 @@ module UglyTrivia
           @output.write "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
 
           winner = did_player_win()
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
+
+          move_to_next_player
 
           winner
         else
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
+          move_to_next_player
           true
         end
       else
@@ -102,8 +101,8 @@ module UglyTrivia
         @output.write "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
 
         winner = did_player_win
-        @current_player += 1
-        @current_player = 0 if @current_player == @players.length
+
+        move_to_next_player
 
         return winner
       end
@@ -120,6 +119,11 @@ module UglyTrivia
     end
 
     private
+
+    def move_to_next_player
+      @current_player += 1
+      @current_player = 0 if @current_player == @players.length
+    end
 
     def ask_question
       @output.write @pop_questions.shift if current_category == 'Pop'
