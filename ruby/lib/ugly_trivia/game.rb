@@ -93,20 +93,35 @@ module UglyTrivia
     end
 
     def was_correctly_answered
-      unless turn_tracking.penalty_applied?
-        current_player.purse.add_coin
+      answer_result = turn_tracking.answer_result
 
-        notify_correct_anwser
+      answer_result.question_answered_correctly
+
+      unless turn_tracking.penalty_applied?
+        answer_result.coins_increase_to = current_player.purse.add_coin
       end
 
+      notify_answer_result(answer_result)
       complete_turn
     end
 
+    def notify_answer_result(answer_result)
+      if answer_result.answered_incorrectly?
+        notify_wrong_answer
+      elsif answer_result.rewarded?
+        notify_correct_anwser(answer_result)
+      end
+    end
+
     def wrong_answer
+      answer_result = turn_tracking.answer_result
+
+      answer_result.question_answered_incorrectly
+
       @penalty_box.hold(current_player)
 
-      notify_wrong_answer
 
+      notify_answer_result(answer_result)
       complete_turn
     end
 
@@ -145,9 +160,9 @@ module UglyTrivia
       end
     end
 
-    def notify_correct_anwser
+    def notify_correct_anwser(answer_result)
       @output.write 'Answer was correct!!!!'
-      @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
+      @output.write "#{current_player} now has #{answer_result.coins_increase_to} Gold Coins."
     end
 
     def notify_question(roll_result)
@@ -316,13 +331,43 @@ module UglyTrivia
 
   class Turn
     attr_reader :roll_result
+    attr_reader :answer_result
 
     def initialize
       @roll_result = RollResult.new
+      @answer_result = AnswerResult.new
     end
 
     def penalty_applied?
       @roll_result.penalty_applied?
+    end
+  end
+
+  class AnswerResult
+    attr_accessor :coins_increase_to
+
+    def initialize
+      @answer = :not_answered
+    end
+
+    def rewarded?
+      !coins_increase_to.nil?
+    end
+
+    def question_answered_correctly
+      @answer = :correct
+    end
+
+    def question_answered_incorrectly
+      @answer = :incorrect
+    end
+
+    def answered_correctly?
+      @answer == :correct
+    end
+
+    def answered_incorrectly?
+      @answer == :incorrect
     end
   end
 
