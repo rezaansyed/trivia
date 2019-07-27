@@ -129,10 +129,8 @@ module UglyTrivia
       roll = roll_results.roll
 
       roll_results.location_update = current_player.board_location.move(roll)
-      # temporal coupling with the move first.
-      roll_results.category = current_category
 
-      question = @questions.next_question(current_category)
+      question = @questions.next_question(roll_results.location_update.category)
       roll_results.question = question
     end
 
@@ -162,8 +160,8 @@ module UglyTrivia
     end
 
     def notify_location(roll_results)
-      @output.write "#{current_player}'s new location is #{roll_results.location_update}"
-      @output.write "The category is #{roll_results.category}"
+      @output.write "#{current_player}'s new location is #{roll_results.location_update.new_location}"
+      @output.write "The category is #{roll_results.location_update.category}"
     end
 
     def notify_getting_out_penalty_box
@@ -183,31 +181,39 @@ module UglyTrivia
     def current_player
       @players.current_player
     end
-
-    def current_category
-      current_player.board_location.pointing_at_category
-    end
   end
 
   class BoardLocation
-    attr_reader :square
-
     def initialize(categories)
       @categories = categories
-      @square = 0
-    end
-
-    def pointing_at_category
-      @categories[square % @categories.length]
+      @location = 0
     end
 
     def move(roll)
-      @square += roll
-      @square = @square % 12
+      @location += roll
+      @location = @location % 12
+
+      LocationUpdate.new(@location, pointing_at_category)
     end
 
     def to_s
-      @square.to_s
+      @location.to_s
+    end
+
+    private
+
+    def pointing_at_category
+      @categories[@location % @categories.length]
+    end
+  end
+
+  class LocationUpdate
+    attr_reader :new_location
+    attr_reader :category
+
+    def initialize(new_location, category)
+      @new_location = new_location
+      @category = category
     end
   end
 
