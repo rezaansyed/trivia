@@ -8,20 +8,17 @@ module UglyTrivia
       @purses = Array.new(6, 0)
       @penalty_box = PenaltyBox.new
 
-      @pop_questions = []
-      @science_questions = []
-      @sports_questions = []
-      @rock_questions = []
       @categories = ['Pop', 'Science', 'Sports', 'Rock']
 
+      @questions = CategorizedQuestions.new(@categories)
       @current_player_position = 0
       @is_getting_out_of_penalty_box = false
 
       50.times do |i|
-        @pop_questions.push "Pop Question #{i}"
-        @science_questions.push "Science Question #{i}"
-        @sports_questions.push "Sports Question #{i}"
-        @rock_questions.push "Rock Question #{i}"
+        @questions.add('Pop', "Pop Question #{i}")
+        @questions.add('Science', "Science Question #{i}")
+        @questions.add('Sports', "Sports Question #{i}")
+        @questions.add('Rock', "Rock Question #{i}")
       end
     end
 
@@ -126,10 +123,7 @@ module UglyTrivia
     end
 
     def ask_question
-      @output.write @pop_questions.shift if current_category == 'Pop'
-      @output.write @science_questions.shift if current_category == 'Science'
-      @output.write @sports_questions.shift if current_category == 'Sports'
-      @output.write @rock_questions.shift if current_category == 'Rock'
+      @output.write @questions.next_question(current_category)
     end
 
     def current_category
@@ -199,6 +193,20 @@ module UglyTrivia
     def ==(other)
       other.class == self.class &&
         other.to_s == to_s
+    end
+  end
+
+  class CategorizedQuestions
+    def initialize(categories)
+      @questions = Hash[categories.map { |c| [c, []] }]
+    end
+
+    def add(category, question)
+      @questions[category] << question
+    end
+
+    def next_question(category)
+      @questions[category].shift
     end
   end
 end
