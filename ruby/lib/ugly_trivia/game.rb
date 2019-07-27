@@ -12,6 +12,7 @@ module UglyTrivia
       @science_questions = []
       @sports_questions = []
       @rock_questions = []
+      @categories = ['Pop', 'Science', 'Sports', 'Rock']
 
       @current_player_position = 0
       @is_getting_out_of_penalty_box = false
@@ -30,7 +31,7 @@ module UglyTrivia
 
     def add(player_name)
       @players.push Player.new(player_name)
-      @places.push BoardLocation.new
+      @places.push BoardLocation.new(@categories)
 
       @output.write "#{player_name} was added"
       @output.write "They are player number #{@players.length}"
@@ -132,16 +133,7 @@ module UglyTrivia
     end
 
     def current_category
-      return 'Pop' if @places[@current_player_position].square == 0
-      return 'Pop' if @places[@current_player_position].square == 4
-      return 'Pop' if @places[@current_player_position].square == 8
-      return 'Science' if @places[@current_player_position].square == 1
-      return 'Science' if @places[@current_player_position].square == 5
-      return 'Science' if @places[@current_player_position].square == 9
-      return 'Sports' if @places[@current_player_position].square == 2
-      return 'Sports' if @places[@current_player_position].square == 6
-      return 'Sports' if @places[@current_player_position].square == 10
-      return 'Rock'
+      @places[@current_player_position].pointing_at_category
     end
 
     def game_continues?
@@ -156,8 +148,13 @@ module UglyTrivia
   class BoardLocation
     attr_reader :square
 
-    def initialize
+    def initialize(categories)
+      @categories = categories
       @square = 0
+    end
+
+    def pointing_at_category
+      @categories[square % @categories.length]
     end
 
     def move(roll)
