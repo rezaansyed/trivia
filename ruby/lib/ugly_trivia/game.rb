@@ -4,13 +4,11 @@ module UglyTrivia
       @output = output
 
       @players = PlayerRotation.new
-      @penalty_box = PenaltyBox.new
 
       @categories = ['Pop', 'Science', 'Sports', 'Rock']
 
       @questions = CategorizedQuestions.new(@categories)
       @current_player_position = 0
-      @is_getting_out_of_penalty_box = false
 
       50.times do |i|
         @questions.add('Pop', "Pop Question #{i}")
@@ -36,6 +34,44 @@ module UglyTrivia
       notify_player_added(player, @players.number_of_players)
 
       true
+    end
+
+    def roll(roll)
+      game_play.roll(roll)
+    end
+
+    def was_correctly_answered
+      game_play.was_correctly_answered
+    end
+
+    def wrong_answer
+      game_play.wrong_answer
+    end
+
+    private
+
+    def game_play
+      @game_play ||= GamePlay.new(
+        players: @players,
+        questions: @questions,
+        output: @output,
+      )
+    end
+
+    def notify_player_added(player, number)
+      @output.write "#{player} was added"
+      @output.write "They are player number #{number}"
+    end
+  end
+
+  class GamePlay
+    def initialize(players:, questions:, output:)
+      @players = players
+      @questions = questions
+      @penalty_box = PenaltyBox.new
+      @is_getting_out_of_penalty_box = false
+
+      @output = output
     end
 
     def roll(roll)
@@ -111,11 +147,6 @@ module UglyTrivia
 
     def notify_question(question)
       @output.write question
-    end
-
-    def notify_player_added(player, number)
-      @output.write "#{player} was added"
-      @output.write "They are player number #{number}"
     end
 
     def notify_not_getting_out_of_penalty_box
