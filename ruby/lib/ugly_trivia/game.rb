@@ -73,7 +73,7 @@ module UglyTrivia
     end
 
     def roll(roll)
-      roll_result = start_turn
+      roll_result = start_turn.roll_result
 
       roll_result.roll = roll
 
@@ -113,7 +113,7 @@ module UglyTrivia
     private
 
     def start_turn
-      @turn_tracking = RollResult.new
+      @turn_tracking = Turn.new
     end
 
     attr_reader :turn_tracking
@@ -124,13 +124,13 @@ module UglyTrivia
       !@players.winner?
     end
 
-    def apply_roll(roll_results)
-      roll = roll_results.roll
+    def apply_roll(roll_result)
+      roll = roll_result.roll
 
-      roll_results.location_update = current_player.board_location.move(roll)
+      roll_result.location_update = current_player.board_location.move(roll)
 
-      question = @questions.next_question(roll_results.location_update.category)
-      roll_results.question = question
+      question = @questions.next_question(roll_result.location_update.category)
+      roll_result.question = question
     end
 
     def notify_roll_result(roll_result)
@@ -311,6 +311,18 @@ module UglyTrivia
 
     def move_to_next_player
       @players.rotate!
+    end
+  end
+
+  class Turn
+    attr_reader :roll_result
+
+    def initialize
+      @roll_result = RollResult.new
+    end
+
+    def penalty_applied?
+      @roll_result.penalty_applied?
     end
   end
 
