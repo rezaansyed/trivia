@@ -89,7 +89,7 @@ module UglyTrivia
         apply_roll(roll_result)
       end
 
-      notify_roll_result(roll_result)
+      complete_roll_step
     end
 
     def was_correctly_answered
@@ -101,17 +101,7 @@ module UglyTrivia
         answer_result.coins_increase_to = current_player.purse.add_coin
       end
 
-      notify_answer_result(answer_result)
-      #temporal coupling
       complete_turn
-    end
-
-    def notify_answer_result(answer_result)
-      if answer_result.answered_incorrectly?
-        notify_wrong_answer(answer_result)
-      elsif answer_result.rewarded?
-        notify_correct_anwser(answer_result)
-      end
     end
 
     def wrong_answer
@@ -121,8 +111,6 @@ module UglyTrivia
 
       @penalty_box.hold(current_player)
 
-      notify_answer_result(answer_result)
-
       complete_turn
     end
 
@@ -130,14 +118,22 @@ module UglyTrivia
 
     def start_turn
       @turn_tracking = Turn.new(current_player)
+      @turn_notifier = TurnNotifier.new(@output, @turn_tracking)
+      @turn_tracking
     end
 
     attr_reader :turn_tracking
 
     def complete_turn
+      @turn_notifier.notify_answer_result
+
       @players.move_to_next_player
 
       !@players.winner?
+    end
+
+    def complete_roll_step
+      @turn_notifier.notify_roll_result
     end
 
     def apply_roll(roll_result)
@@ -147,50 +143,6 @@ module UglyTrivia
 
       question = @questions.next_question(roll_result.location_update.category)
       roll_result.question = question
-    end
-
-    def notify_roll_result(roll_result)
-      notify_roll(roll_result)
-
-      if roll_result.penalty_applied?
-        notify_not_getting_out_of_penalty_box(roll_result)
-      else
-        notify_getting_out_penalty_box(roll_result) if roll_result.penalty_suspended?
-        notify_location(roll_result)
-        notify_question(roll_result)
-      end
-    end
-
-    def notify_correct_anwser(answer_result)
-      @output.write 'Answer was correct!!!!'
-      @output.write "#{answer_result.player} now has #{answer_result.coins_increase_to} Gold Coins."
-    end
-
-    def notify_question(roll_result)
-      @output.write roll_result.question
-    end
-
-    def notify_not_getting_out_of_penalty_box(roll_result)
-      @output.write "#{roll_result.player} is not getting out of the penalty box"
-    end
-
-    def notify_location(roll_result)
-      @output.write "#{roll_result.player}'s new location is #{roll_result.location_update.new_location}"
-      @output.write "The category is #{roll_result.location_update.category}"
-    end
-
-    def notify_getting_out_penalty_box(roll_result)
-      @output.write "#{roll_result.player} is getting out of the penalty box"
-    end
-
-    def notify_wrong_answer(answer_result)
-      @output.write 'Question was incorrectly answered'
-      @output.write "#{answer_result.player} was sent to the penalty box"
-    end
-
-    def notify_roll(roll_result)
-      @output.write "#{roll_result.player} is the current player"
-      @output.write "They have rolled a #{roll_result.roll}"
     end
 
     def current_player
@@ -400,6 +352,75 @@ module UglyTrivia
 
     def penalty_suspended?
       @penalty_status == :suspended
+    end
+  end
+
+  class TurnNotifier
+    def initialize(output, turn)
+      @output = output
+      @turn = turn
+    end
+
+    def notify_roll_result
+      notify_roll
+
+      if roll_result.penalty_applied?
+        notify_not_getting_out_of_penalty_box
+      else
+        notify_getting_out_penalty_box if roll_result.penalty_suspended?
+        notify_location
+        notify_question
+      end
+    end
+
+    def notify_answer_result(r = nil)
+      if answer_result.answered_incorrectly?
+        notify_wrong_answer
+      elsif answer_result.rewarded?
+        notify_correct_anwser
+      end
+    end
+
+    private
+
+    def roll_result
+      @turn.roll_result
+    end
+
+    def answer_result
+      @turn.answer_result
+    end
+
+    def notify_correct_anwser
+      @output.write 'Answer was correct!!!!'
+      @output.write "#{answer_result.player} now has #{answer_result.coins_increase_to} Gold Coins."
+    end
+
+    def notify_question
+      @output.write roll_result.question
+    end
+
+    def notify_not_getting_out_of_penalty_box
+      @output.write "#{roll_result.player} is not getting out of the penalty box"
+    end
+
+    def notify_location
+      @output.write "#{roll_result.player}'s new location is #{roll_result.location_update.new_location}"
+      @output.write "The category is #{roll_result.location_update.category}"
+    end
+
+    def notify_getting_out_penalty_box
+      @output.write "#{roll_result.player} is getting out of the penalty box"
+    end
+
+    def notify_wrong_answer
+      @output.write 'Question was incorrectly answered'
+      @output.write "#{answer_result.player} was sent to the penalty box"
+    end
+
+    def notify_roll
+      @output.write "#{roll_result.player} is the current player"
+      @output.write "They have rolled a #{roll_result.roll}"
     end
   end
 end
