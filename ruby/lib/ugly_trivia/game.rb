@@ -13,7 +13,7 @@ module UglyTrivia
       @sports_questions = []
       @rock_questions = []
 
-      @current_player = 0
+      @current_player_position = 0
       @is_getting_out_of_penalty_box = false
 
       50.times do |i|
@@ -48,28 +48,28 @@ module UglyTrivia
     end
 
     def roll(roll)
-      @output.write "#{@players[@current_player]} is the current player"
+      @output.write "#{current_player} is the current player"
       @output.write "They have rolled a #{roll}"
 
       if current_player_in_penalty_box?
         if roll.odd?
           @is_getting_out_of_penalty_box = true
 
-          @output.write "#{@players[@current_player]} is getting out of the penalty box"
+          @output.write "#{current_player} is getting out of the penalty box"
 
           move_current_players_position(roll)
 
-          @output.write "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
+          @output.write "#{current_player}'s new location is #{@places[@current_player_position]}"
           @output.write "The category is #{current_category}"
           ask_question
         else
-          @output.write "#{@players[@current_player]} is not getting out of the penalty box"
+          @output.write "#{current_player} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
         end
       else
         move_current_players_position(roll)
 
-        @output.write "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
+        @output.write "#{current_player}'s new location is #{@places[@current_player_position]}"
         @output.write "The category is #{current_category}"
         ask_question
       end
@@ -79,8 +79,8 @@ module UglyTrivia
       if current_player_in_penalty_box?
         if @is_getting_out_of_penalty_box
           @output.write 'Answer was correct!!!!'
-          @purses[@current_player] += 1
-          @output.write "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+          @purses[@current_player_position] += 1
+          @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
           winner = did_player_win()
 
@@ -93,8 +93,8 @@ module UglyTrivia
         end
       else
         @output.write "Answer was correct!!!!"
-        @purses[@current_player] += 1
-        @output.write "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+        @purses[@current_player_position] += 1
+        @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
         winner = did_player_win
 
@@ -106,27 +106,31 @@ module UglyTrivia
 
     def wrong_answer
       @output.write 'Question was incorrectly answered'
-      @output.write "#{@players[@current_player]} was sent to the penalty box"
+      @output.write "#{current_player} was sent to the penalty box"
   		put_current_player_in_the_penalty_box
 
-      @current_player += 1
-      @current_player = 0 if @current_player == @players.length
+      @current_player_position += 1
+      @current_player_position = 0 if @current_player_position == @players.length
   		return true
     end
 
     private
 
+    def current_player
+      @players[@current_player_position]
+    end
+
     def current_player_in_penalty_box?
-      @penalty_box.holding?(@players[@current_player])
+      @penalty_box.holding?(current_player)
     end
 
     def put_current_player_in_the_penalty_box
-      @penalty_box.hold(@players[@current_player])
+      @penalty_box.hold(current_player)
     end
 
     def move_to_next_player
-      @current_player += 1
-      @current_player = 0 if @current_player == @players.length
+      @current_player_position += 1
+      @current_player_position = 0 if @current_player_position == @players.length
     end
 
     def ask_question
@@ -137,25 +141,25 @@ module UglyTrivia
     end
 
     def current_category
-      return 'Pop' if @places[@current_player] == 0
-      return 'Pop' if @places[@current_player] == 4
-      return 'Pop' if @places[@current_player] == 8
-      return 'Science' if @places[@current_player] == 1
-      return 'Science' if @places[@current_player] == 5
-      return 'Science' if @places[@current_player] == 9
-      return 'Sports' if @places[@current_player] == 2
-      return 'Sports' if @places[@current_player] == 6
-      return 'Sports' if @places[@current_player] == 10
+      return 'Pop' if @places[@current_player_position] == 0
+      return 'Pop' if @places[@current_player_position] == 4
+      return 'Pop' if @places[@current_player_position] == 8
+      return 'Science' if @places[@current_player_position] == 1
+      return 'Science' if @places[@current_player_position] == 5
+      return 'Science' if @places[@current_player_position] == 9
+      return 'Sports' if @places[@current_player_position] == 2
+      return 'Sports' if @places[@current_player_position] == 6
+      return 'Sports' if @places[@current_player_position] == 10
       return 'Rock'
     end
 
     def did_player_win
-      !(@purses[@current_player] == 6)
+      !(@purses[@current_player_position] == 6)
     end
 
     def move_current_players_position(roll)
-      @places[@current_player] = @places[@current_player] + roll
-      @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
+      @places[@current_player_position] = @places[@current_player_position] + roll
+      @places[@current_player_position] = @places[@current_player_position] - 12 if @places[@current_player_position] > 11
     end
 
   end
