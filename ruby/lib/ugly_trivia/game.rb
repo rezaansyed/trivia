@@ -102,12 +102,13 @@ module UglyTrivia
       end
 
       notify_answer_result(answer_result)
+      #temporal coupling
       complete_turn
     end
 
     def notify_answer_result(answer_result)
       if answer_result.answered_incorrectly?
-        notify_wrong_answer
+        notify_wrong_answer(answer_result)
       elsif answer_result.rewarded?
         notify_correct_anwser(answer_result)
       end
@@ -120,15 +121,15 @@ module UglyTrivia
 
       @penalty_box.hold(current_player)
 
-
       notify_answer_result(answer_result)
+
       complete_turn
     end
 
     private
 
     def start_turn
-      @turn_tracking = Turn.new
+      @turn_tracking = Turn.new(current_player)
     end
 
     attr_reader :turn_tracking
@@ -149,12 +150,12 @@ module UglyTrivia
     end
 
     def notify_roll_result(roll_result)
-      notify_roll(roll_result.roll)
+      notify_roll(roll_result)
 
       if roll_result.penalty_applied?
-        notify_not_getting_out_of_penalty_box
+        notify_not_getting_out_of_penalty_box(roll_result)
       else
-        notify_getting_out_penalty_box if roll_result.penalty_suspended?
+        notify_getting_out_penalty_box(roll_result) if roll_result.penalty_suspended?
         notify_location(roll_result)
         notify_question(roll_result)
       end
@@ -162,34 +163,34 @@ module UglyTrivia
 
     def notify_correct_anwser(answer_result)
       @output.write 'Answer was correct!!!!'
-      @output.write "#{current_player} now has #{answer_result.coins_increase_to} Gold Coins."
+      @output.write "#{answer_result.player} now has #{answer_result.coins_increase_to} Gold Coins."
     end
 
     def notify_question(roll_result)
       @output.write roll_result.question
     end
 
-    def notify_not_getting_out_of_penalty_box
-      @output.write "#{current_player} is not getting out of the penalty box"
+    def notify_not_getting_out_of_penalty_box(roll_result)
+      @output.write "#{roll_result.player} is not getting out of the penalty box"
     end
 
-    def notify_location(roll_results)
-      @output.write "#{current_player}'s new location is #{roll_results.location_update.new_location}"
-      @output.write "The category is #{roll_results.location_update.category}"
+    def notify_location(roll_result)
+      @output.write "#{roll_result.player}'s new location is #{roll_result.location_update.new_location}"
+      @output.write "The category is #{roll_result.location_update.category}"
     end
 
-    def notify_getting_out_penalty_box
-      @output.write "#{current_player} is getting out of the penalty box"
+    def notify_getting_out_penalty_box(roll_result)
+      @output.write "#{roll_result.player} is getting out of the penalty box"
     end
 
-    def notify_wrong_answer
+    def notify_wrong_answer(answer_result)
       @output.write 'Question was incorrectly answered'
-      @output.write "#{current_player} was sent to the penalty box"
+      @output.write "#{answer_result.player} was sent to the penalty box"
     end
 
-    def notify_roll(roll)
-      @output.write "#{current_player} is the current player"
-      @output.write "They have rolled a #{roll}"
+    def notify_roll(roll_result)
+      @output.write "#{roll_result.player} is the current player"
+      @output.write "They have rolled a #{roll_result.roll}"
     end
 
     def current_player
@@ -333,9 +334,9 @@ module UglyTrivia
     attr_reader :roll_result
     attr_reader :answer_result
 
-    def initialize
-      @roll_result = RollResult.new
-      @answer_result = AnswerResult.new
+    def initialize(player)
+      @roll_result = RollResult.new(player)
+      @answer_result = AnswerResult.new(player)
     end
 
     def penalty_applied?
@@ -345,9 +346,11 @@ module UglyTrivia
 
   class AnswerResult
     attr_accessor :coins_increase_to
+    attr_reader :player
 
-    def initialize
+    def initialize(player)
       @answer = :not_answered
+      @player = player
     end
 
     def rewarded?
@@ -373,13 +376,14 @@ module UglyTrivia
 
   class RollResult
     attr_accessor :roll
-    attr_accessor :penalty_status
     attr_accessor :category
     attr_accessor :location_update
     attr_accessor :question
+    attr_reader :player
 
-    def initialize
+    def initialize(player)
       @penalty_status = :no_penalty
+      @player = player
     end
 
     def suspend_penalty
@@ -391,11 +395,11 @@ module UglyTrivia
     end
 
     def penalty_applied?
-      penalty_status == :applied
+      @penalty_status == :applied
     end
 
     def penalty_suspended?
-      penalty_status == :suspended
+      @penalty_status == :suspended
     end
   end
 end
