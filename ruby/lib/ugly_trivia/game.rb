@@ -4,7 +4,7 @@ module UglyTrivia
       @output = output
 
       @players = []
-      @places = Array.new(6, 0)
+      @places = []
       @purses = Array.new(6, 0)
       @penalty_box = PenaltyBox.new
 
@@ -30,6 +30,7 @@ module UglyTrivia
 
     def add(player_name)
       @players.push Player.new(player_name)
+      @places.push BoardLocation.new
 
       @output.write "#{player_name} was added"
       @output.write "They are player number #{@players.length}"
@@ -131,15 +132,15 @@ module UglyTrivia
     end
 
     def current_category
-      return 'Pop' if @places[@current_player_position] == 0
-      return 'Pop' if @places[@current_player_position] == 4
-      return 'Pop' if @places[@current_player_position] == 8
-      return 'Science' if @places[@current_player_position] == 1
-      return 'Science' if @places[@current_player_position] == 5
-      return 'Science' if @places[@current_player_position] == 9
-      return 'Sports' if @places[@current_player_position] == 2
-      return 'Sports' if @places[@current_player_position] == 6
-      return 'Sports' if @places[@current_player_position] == 10
+      return 'Pop' if @places[@current_player_position].square == 0
+      return 'Pop' if @places[@current_player_position].square == 4
+      return 'Pop' if @places[@current_player_position].square == 8
+      return 'Science' if @places[@current_player_position].square == 1
+      return 'Science' if @places[@current_player_position].square == 5
+      return 'Science' if @places[@current_player_position].square == 9
+      return 'Sports' if @places[@current_player_position].square == 2
+      return 'Sports' if @places[@current_player_position].square == 6
+      return 'Sports' if @places[@current_player_position].square == 10
       return 'Rock'
     end
 
@@ -148,10 +149,25 @@ module UglyTrivia
     end
 
     def move_current_players_position(roll)
-      @places[@current_player_position] = @places[@current_player_position] + roll
-      @places[@current_player_position] = @places[@current_player_position] - 12 if @places[@current_player_position] > 11
+      @places[@current_player_position].move(roll)
+    end
+  end
+
+  class BoardLocation
+    attr_reader :square
+
+    def initialize
+      @square = 0
     end
 
+    def move(roll)
+      @square += roll
+      @square = @square % 12
+    end
+
+    def to_s
+      @square.to_s
+    end
   end
 
   class ConsoleOutput
