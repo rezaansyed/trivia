@@ -78,33 +78,21 @@ module UglyTrivia
       roll_result = RollResult.new
       roll_result.roll = roll
 
-      notify_roll(roll)
-
       if @penalty_box.holding?(current_player)
         if roll.odd?
           @is_getting_out_of_penalty_box = true
-
-          notify_getting_out_penalty_box
+          roll_result.penalty_status = :suspended
 
           apply_roll(roll_result)
         else
-          roll_result.penalty_applied = true
+          roll_result.penalty_status = :applied
           @is_getting_out_of_penalty_box = false
-
-          notify_not_getting_out_of_penalty_box
         end
       else
         apply_roll(roll_result)
       end
 
       notify_roll_result(roll_result)
-    end
-
-    def notify_roll_result(roll_result)
-      unless roll_result.penalty_applied
-        notify_location(roll_result)
-        notify_question(roll_result)
-      end
     end
 
     def was_correctly_answered
@@ -146,6 +134,18 @@ module UglyTrivia
 
       question = @questions.next_question(current_category)
       roll_results.question = question
+    end
+
+    def notify_roll_result(roll_result)
+      notify_roll(roll_result.roll)
+
+      if roll_result.penalty_applied?
+        notify_not_getting_out_of_penalty_box
+      else
+        notify_getting_out_penalty_box if roll_result.penalty_suspended?
+        notify_location(roll_result)
+        notify_question(roll_result)
+      end
     end
 
     def notify_correct_anwser
@@ -311,9 +311,17 @@ module UglyTrivia
 
   class RollResult
     attr_accessor :roll
-    attr_accessor :penalty_applied
+    attr_accessor :penalty_status
     attr_accessor :category
     attr_accessor :location_update
     attr_accessor :question
+
+    def penalty_applied?
+      penalty_status == :applied
+    end
+
+    def penalty_suspended?
+      penalty_status == :suspended
+    end
   end
 end
