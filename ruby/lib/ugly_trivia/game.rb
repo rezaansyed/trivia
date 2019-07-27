@@ -21,7 +21,7 @@ module UglyTrivia
     end
 
     def is_playable?
-      how_many_players >= 2
+      @players.number_of_players >= 2
     end
 
     def add(player_name)
@@ -37,10 +37,6 @@ module UglyTrivia
       @output.write "They are player number #{@players.number_of_players}"
 
       true
-    end
-
-    def how_many_players
-      @players.number_of_players
     end
 
     def roll(roll)
