@@ -3,7 +3,7 @@ module UglyTrivia
     def initialize(output = ConsoleOutput.new)
       @output = output
 
-      @players = []
+      @players = PlayerRotation.new
       @penalty_box = PenaltyBox.new
 
       @categories = ['Pop', 'Science', 'Sports', 'Rock']
@@ -31,16 +31,16 @@ module UglyTrivia
         Purse.new
       )
 
-      @players.push player
+      @players.add player
 
       @output.write "#{player} was added"
-      @output.write "They are player number #{@players.length}"
+      @output.write "They are player number #{@players.number_of_players}"
 
       true
     end
 
     def how_many_players
-      @players.length
+      @players.number_of_players
     end
 
     def roll(roll)
@@ -53,20 +53,23 @@ module UglyTrivia
 
           @output.write "#{current_player} is getting out of the penalty box"
 
-          move_current_players_position(roll)
+          current_player.board_location.move(roll)
 
           @output.write "#{current_player}'s new location is #{current_player.board_location}"
           @output.write "The category is #{current_category}"
+
           ask_question
         else
           @output.write "#{current_player} is not getting out of the penalty box"
+
           @is_getting_out_of_penalty_box = false
         end
       else
-        move_current_players_position(roll)
+        current_player.board_location.move(roll)
 
         @output.write "#{current_player}'s new location is #{current_player.board_location}"
         @output.write "The category is #{current_category}"
+
         ask_question
       end
     end
@@ -75,14 +78,16 @@ module UglyTrivia
       if @penalty_box.holding?(current_player)
         if @is_getting_out_of_penalty_box
           @output.write 'Answer was correct!!!!'
+
           current_player.purse.add_coin
+
           @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
 
-          move_to_next_player
+          @players.move_to_next_player
 
           game_continues?
         else
-          move_to_next_player
+          @players.move_to_next_player
           true
         end
       else
@@ -90,7 +95,7 @@ module UglyTrivia
         current_player.purse.add_coin
         @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
 
-        move_to_next_player
+        @players.move_to_next_player
 
         game_continues?
       end
@@ -101,7 +106,7 @@ module UglyTrivia
       @output.write "#{current_player} was sent to the penalty box"
       @penalty_box.hold(current_player)
 
-      move_to_next_player
+      @players.move_to_next_player
 
   		return true
     end
@@ -109,12 +114,7 @@ module UglyTrivia
     private
 
     def current_player
-      @players[@current_player_position]
-    end
-
-    def move_to_next_player
-      @current_player_position += 1
-      @current_player_position = 0 if @current_player_position == @players.length
+      @players.current_player
     end
 
     def ask_question
@@ -127,10 +127,6 @@ module UglyTrivia
 
     def game_continues?
       @players.none? { |player| player.purse.total == 6 }
-    end
-
-    def move_current_players_position(roll)
-      current_player.board_location.move(roll)
     end
   end
 
@@ -225,6 +221,34 @@ module UglyTrivia
 
     def to_s
       @coins.to_s
+    end
+  end
+
+  class PlayerRotation
+    include Enumerable
+
+    def initialize
+      @players = []
+    end
+
+    def add(player)
+      @players << player
+    end
+
+    def each(&block)
+      @players.each(&block)
+    end
+
+    def number_of_players
+      @players.length
+    end
+
+    def current_player
+      @players.first
+    end
+
+    def move_to_next_player
+      @players.rotate!
     end
   end
 end
