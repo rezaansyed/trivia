@@ -76,11 +76,11 @@ module UglyTrivia
           @purses[@current_player_position] += 1
           @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
-          winner = did_player_win()
+          continue_game = game_continues?
 
           move_to_next_player
 
-          winner
+          continue_game
         else
           move_to_next_player
           true
@@ -90,11 +90,11 @@ module UglyTrivia
         @purses[@current_player_position] += 1
         @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
-        winner = did_player_win
+        continue_game = game_continues?
 
         move_to_next_player
 
-        return winner
+        return continue_game
       end
     end
 
@@ -147,7 +147,7 @@ module UglyTrivia
       return 'Rock'
     end
 
-    def did_player_win
+    def game_continues?
       !(@purses[@current_player_position] == 6)
     end
 
