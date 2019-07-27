@@ -33,40 +33,28 @@ module UglyTrivia
 
       @players.add player
 
-      @output.write "#{player} was added"
-      @output.write "They are player number #{@players.number_of_players}"
+      notify_player_added(player, @players.number_of_players)
 
       true
     end
 
     def roll(roll)
-      @output.write "#{current_player} is the current player"
-      @output.write "They have rolled a #{roll}"
+      notify_roll(roll)
 
       if @penalty_box.holding?(current_player)
         if roll.odd?
           @is_getting_out_of_penalty_box = true
 
-          @output.write "#{current_player} is getting out of the penalty box"
+          notify_getting_out_penalty_box
 
-          current_player.board_location.move(roll)
-
-          @output.write "#{current_player}'s new location is #{current_player.board_location}"
-          @output.write "The category is #{current_category}"
-
-          ask_question
+          apply_roll(roll)
         else
-          @output.write "#{current_player} is not getting out of the penalty box"
+          notify_not_getting_out_of_penalty_box
 
           @is_getting_out_of_penalty_box = false
         end
       else
-        current_player.board_location.move(roll)
-
-        @output.write "#{current_player}'s new location is #{current_player.board_location}"
-        @output.write "The category is #{current_category}"
-
-        ask_question
+        apply_roll(roll)
       end
     end
 
@@ -100,8 +88,8 @@ module UglyTrivia
     end
 
     def wrong_answer
-      @output.write 'Question was incorrectly answered'
-      @output.write "#{current_player} was sent to the penalty box"
+      notify_wrong_answer
+
       @penalty_box.hold(current_player)
 
       @players.move_to_next_player
@@ -111,12 +99,50 @@ module UglyTrivia
 
     private
 
-    def current_player
-      @players.current_player
+    def apply_roll(roll)
+      current_player.board_location.move(roll)
+
+      notify_location(current_category)
+
+      question = @questions.next_question(current_category)
+
+      notify_question(question)
     end
 
-    def ask_question
-      @output.write @questions.next_question(current_category)
+    def notify_question(question)
+      @output.write question
+    end
+
+    def notify_player_added(player, number)
+      @output.write "#{player} was added"
+      @output.write "They are player number #{number}"
+    end
+
+    def notify_not_getting_out_of_penalty_box
+      @output.write "#{current_player} is not getting out of the penalty box"
+    end
+
+    def notify_location(current_category)
+      @output.write "#{current_player}'s new location is #{current_player.board_location}"
+      @output.write "The category is #{current_category}"
+    end
+
+    def notify_getting_out_penalty_box
+      @output.write "#{current_player} is getting out of the penalty box"
+    end
+
+    def notify_wrong_answer
+      @output.write 'Question was incorrectly answered'
+      @output.write "#{current_player} was sent to the penalty box"
+    end
+
+    def notify_roll(roll)
+      @output.write "#{current_player} is the current player"
+      @output.write "They have rolled a #{roll}"
+    end
+
+    def current_player
+      @players.current_player
     end
 
     def current_category
