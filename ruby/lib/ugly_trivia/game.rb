@@ -69,24 +69,21 @@ module UglyTrivia
       @players = players
       @questions = questions
       @penalty_box = PenaltyBox.new
-      @is_getting_out_of_penalty_box = false
-
       @output = output
     end
 
     def roll(roll)
-      roll_result = RollResult.new
+      roll_result = start_turn
+
       roll_result.roll = roll
 
       if @penalty_box.holding?(current_player)
         if roll.odd?
-          @is_getting_out_of_penalty_box = true
           roll_result.suspend_penalty
 
           apply_roll(roll_result)
         else
           roll_result.apply_penalty
-          @is_getting_out_of_penalty_box = false
         end
       else
         apply_roll(roll_result)
@@ -96,7 +93,7 @@ module UglyTrivia
     end
 
     def was_correctly_answered
-      unless penalty_applied?
+      unless turn_tracking.penalty_applied?
         current_player.purse.add_coin
 
         notify_correct_anwser
@@ -115,9 +112,11 @@ module UglyTrivia
 
     private
 
-    def penalty_applied?
-      @penalty_box.holding?(current_player) && !@is_getting_out_of_penalty_box
+    def start_turn
+      @turn_tracking = RollResult.new
     end
+
+    attr_reader :turn_tracking
 
     def complete_turn
       @players.move_to_next_player
