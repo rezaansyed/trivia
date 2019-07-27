@@ -5,7 +5,7 @@ module UglyTrivia
 
       @players = []
       @places = []
-      @purses = Array.new(6, 0)
+      @purses = []
       @penalty_box = PenaltyBox.new
 
       @categories = ['Pop', 'Science', 'Sports', 'Rock']
@@ -29,6 +29,7 @@ module UglyTrivia
     def add(player_name)
       @players.push Player.new(player_name)
       @places.push BoardLocation.new(@categories)
+      @purses.push Purse.new
 
       @output.write "#{player_name} was added"
       @output.write "They are player number #{@players.length}"
@@ -72,7 +73,7 @@ module UglyTrivia
       if @penalty_box.holding?(current_player)
         if @is_getting_out_of_penalty_box
           @output.write 'Answer was correct!!!!'
-          @purses[@current_player_position] += 1
+          @purses[@current_player_position].add_coin
           @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
           move_to_next_player
@@ -84,7 +85,7 @@ module UglyTrivia
         end
       else
         @output.write "Answer was correct!!!!"
-        @purses[@current_player_position] += 1
+        @purses[@current_player_position].add_coin
         @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
         move_to_next_player
@@ -123,11 +124,15 @@ module UglyTrivia
     end
 
     def game_continues?
-      @purses.none? { |purse| purse == 6 }
+      @purses.none? { |purse| purse.total == 6 }
     end
 
     def move_current_players_position(roll)
       @places[@current_player_position].move(roll)
+    end
+
+    def add_coin_to_current_player
+      @purses[@current_player_position].add_coin
     end
   end
 
@@ -199,6 +204,24 @@ module UglyTrivia
 
     def next_question(category)
       @questions[category].shift
+    end
+  end
+
+  class Purse
+    def initialize
+      @coins = 0
+    end
+
+    def add_coin
+      @coins += 1
+    end
+
+    def total
+      @coins
+    end
+
+    def to_s
+      @coins.to_s
     end
   end
 end
