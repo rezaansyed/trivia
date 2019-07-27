@@ -6,7 +6,7 @@ module UglyTrivia
       @players = []
       @places = Array.new(6, 0)
       @purses = Array.new(6, 0)
-      @in_penalty_box = Array.new(6, false)
+      @penalty_box = PenaltyBox.new
 
       @pop_questions = []
       @science_questions = []
@@ -114,15 +114,14 @@ module UglyTrivia
   		return true
     end
 
-
     private
 
     def current_player_in_penalty_box?
-      @in_penalty_box[@current_player]
+      @penalty_box.holding?(@players[@current_player])
     end
 
     def put_current_player_in_the_penalty_box
-      @in_penalty_box[@current_player] = true
+      @penalty_box.hold(@players[@current_player])
     end
 
     def move_to_next_player
@@ -167,6 +166,20 @@ module UglyTrivia
     end
   end
 
+  class PenaltyBox
+    def initialize
+      @players = Set.new
+    end
+
+    def hold(player)
+      @players << player
+    end
+
+    def holding?(player)
+      @players.include?(player)
+    end
+  end
+
   class Player
     def initialize(name)
       @name = name
@@ -174,6 +187,11 @@ module UglyTrivia
 
     def to_s
       @name
+    end
+
+    def ==(other)
+      other.class == self.class &&
+        other.to_s == to_s
     end
   end
 end
