@@ -30,8 +30,6 @@ module UglyTrivia
 
     def add(player_name)
       @players.push Player.new(player_name)
-      @places[how_many_players] = 0
-      @purses[how_many_players] = 0
 
       @output.write "#{player_name} was added"
       @output.write "They are player number #{@players.length}"
