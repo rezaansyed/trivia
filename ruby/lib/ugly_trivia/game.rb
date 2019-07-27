@@ -53,7 +53,7 @@ module UglyTrivia
       @output.write "They have rolled a #{roll}"
 
       if @in_penalty_box[@current_player]
-        if roll % 2 != 0
+        if roll.odd?
           @is_getting_out_of_penalty_box = true
 
           @output.write "#{@players[@current_player]} is getting out of the penalty box"
