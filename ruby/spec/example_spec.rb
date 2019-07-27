@@ -36,7 +36,7 @@ describe "overall game" do
     ])
     expect(game.was_correctly_answered).to eq(true)
     expect(output.consume_lines).to eq([
-      "Answer was corrent!!!!",
+      "Answer was correct!!!!",
       "chunky now has 1 Gold Coins.",
     ])
 
@@ -65,7 +65,7 @@ describe "overall game" do
     ])
     expect(game.was_correctly_answered).to eq(true)
     expect(output.consume_lines).to eq([
-      "Answer was corrent!!!!",
+      "Answer was correct!!!!",
       "chunky now has 2 Gold Coins.",
     ])
 
@@ -94,7 +94,7 @@ describe "overall game" do
     ])
     expect(game.was_correctly_answered).to eq(true)
     expect(output.consume_lines).to eq([
-      "Answer was corrent!!!!",
+      "Answer was correct!!!!",
       "chunky now has 3 Gold Coins.",
     ])
 
@@ -123,7 +123,7 @@ describe "overall game" do
     ])
     expect(game.was_correctly_answered).to eq(true)
     expect(output.consume_lines).to eq([
-      "Answer was corrent!!!!",
+      "Answer was correct!!!!",
       "chunky now has 4 Gold Coins.",
     ])
 
@@ -152,7 +152,7 @@ describe "overall game" do
     ])
     expect(game.was_correctly_answered).to eq(true)
     expect(output.consume_lines).to eq([
-      "Answer was corrent!!!!",
+      "Answer was correct!!!!",
       "chunky now has 5 Gold Coins.",
     ])
 
@@ -181,7 +181,7 @@ describe "overall game" do
     ])
     expect(game.was_correctly_answered).to eq(false)
     expect(output.consume_lines).to eq([
-      "Answer was corrent!!!!",
+      "Answer was correct!!!!",
       "chunky now has 6 Gold Coins.",
     ])
   end
