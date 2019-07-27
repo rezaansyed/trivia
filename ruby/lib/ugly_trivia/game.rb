@@ -101,8 +101,8 @@ module UglyTrivia
       @output.write "#{current_player} was sent to the penalty box"
       @penalty_box.hold(current_player)
 
-      @current_player_position += 1
-      @current_player_position = 0 if @current_player_position == @players.length
+      move_to_next_player
+
   		return true
     end
 
