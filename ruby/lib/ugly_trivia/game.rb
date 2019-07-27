@@ -81,11 +81,11 @@ module UglyTrivia
       if @penalty_box.holding?(current_player)
         if roll.odd?
           @is_getting_out_of_penalty_box = true
-          roll_result.penalty_status = :suspended
+          roll_result.suspend_penalty
 
           apply_roll(roll_result)
         else
-          roll_result.penalty_status = :applied
+          roll_result.apply_penalty
           @is_getting_out_of_penalty_box = false
         end
       else
@@ -315,6 +315,18 @@ module UglyTrivia
     attr_accessor :category
     attr_accessor :location_update
     attr_accessor :question
+
+    def initialize
+      @penalty_status = :no_penalty
+    end
+
+    def suspend_penalty
+      @penalty_status = :suspended
+    end
+
+    def apply_penalty
+      @penalty_status = :applied
+    end
 
     def penalty_applied?
       penalty_status == :applied
