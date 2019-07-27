@@ -57,8 +57,8 @@ module UglyTrivia
           @is_getting_out_of_penalty_box = true
 
           @output.write "#{@players[@current_player]} is getting out of the penalty box"
-          @places[@current_player] = @places[@current_player] + roll
-          @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
+
+          move_current_players_position(roll)
 
           @output.write "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
           @output.write "The category is #{current_category}"
@@ -66,12 +66,9 @@ module UglyTrivia
         else
           @output.write "#{@players[@current_player]} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
-          end
-
+        end
       else
-
-        @places[@current_player] = @places[@current_player] + roll
-        @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
+        move_current_players_position(roll)
 
         @output.write "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
         @output.write "The category is #{current_category}"
@@ -148,6 +145,12 @@ module UglyTrivia
     def did_player_win
       !(@purses[@current_player] == 6)
     end
+
+    def move_current_players_position(roll)
+      @places[@current_player] = @places[@current_player] + roll
+      @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
+    end
+
   end
 
   class ConsoleOutput
