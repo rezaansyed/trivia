@@ -76,11 +76,9 @@ module UglyTrivia
           @purses[@current_player_position] += 1
           @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
-          continue_game = game_continues?
-
           move_to_next_player
 
-          continue_game
+          game_continues?
         else
           move_to_next_player
           true
@@ -90,11 +88,9 @@ module UglyTrivia
         @purses[@current_player_position] += 1
         @output.write "#{current_player} now has #{@purses[@current_player_position]} Gold Coins."
 
-        continue_game = game_continues?
-
         move_to_next_player
 
-        return continue_game
+        game_continues?
       end
     end
 
@@ -148,7 +144,7 @@ module UglyTrivia
     end
 
     def game_continues?
-      !(@purses[@current_player_position] == 6)
+      @purses.none? { |purse| purse == 6 }
     end
 
     def move_current_players_position(roll)
