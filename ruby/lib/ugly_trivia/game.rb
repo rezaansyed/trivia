@@ -6,7 +6,7 @@ module UglyTrivia
       @players = []
       @places = Array.new(6, 0)
       @purses = Array.new(6, 0)
-      @in_penalty_box = Array.new(6, nil)
+      @in_penalty_box = Array.new(6, false)
 
       @pop_questions = []
       @science_questions = []
@@ -36,7 +36,6 @@ module UglyTrivia
       @players.push Player.new(player_name)
       @places[how_many_players] = 0
       @purses[how_many_players] = 0
-      @in_penalty_box[how_many_players] = false
 
       @output.write "#{player_name} was added"
       @output.write "They are player number #{@players.length}"
@@ -52,7 +51,7 @@ module UglyTrivia
       @output.write "#{@players[@current_player]} is the current player"
       @output.write "They have rolled a #{roll}"
 
-      if @in_penalty_box[@current_player]
+      if current_player_in_penalty_box?
         if roll.odd?
           @is_getting_out_of_penalty_box = true
 
@@ -77,7 +76,7 @@ module UglyTrivia
     end
 
     def was_correctly_answered
-      if @in_penalty_box[@current_player]
+      if current_player_in_penalty_box?
         if @is_getting_out_of_penalty_box
           @output.write 'Answer was correct!!!!'
           @purses[@current_player] += 1
@@ -108,14 +107,23 @@ module UglyTrivia
     def wrong_answer
       @output.write 'Question was incorrectly answered'
       @output.write "#{@players[@current_player]} was sent to the penalty box"
-  		@in_penalty_box[@current_player] = true
+  		put_current_player_in_the_penalty_box
 
       @current_player += 1
       @current_player = 0 if @current_player == @players.length
   		return true
     end
 
+
     private
+
+    def current_player_in_penalty_box?
+      @in_penalty_box[@current_player]
+    end
+
+    def put_current_player_in_the_penalty_box
+      @in_penalty_box[@current_player] = true
+    end
 
     def move_to_next_player
       @current_player += 1
