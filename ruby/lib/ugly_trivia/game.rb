@@ -75,6 +75,9 @@ module UglyTrivia
     end
 
     def roll(roll)
+      roll_result = RollResult.new
+      roll_result.roll = roll
+
       notify_roll(roll)
 
       if @penalty_box.holding?(current_player)
@@ -83,14 +86,24 @@ module UglyTrivia
 
           notify_getting_out_penalty_box
 
-          apply_roll(roll)
+          apply_roll(roll_result)
         else
+          roll_result.penalty_applied = true
           @is_getting_out_of_penalty_box = false
 
           notify_not_getting_out_of_penalty_box
         end
       else
-        apply_roll(roll)
+        apply_roll(roll_result)
+      end
+
+      notify_roll_result(roll_result)
+    end
+
+    def notify_roll_result(roll_result)
+      unless roll_result.penalty_applied
+        notify_location(roll_result)
+        notify_question(roll_result)
       end
     end
 
@@ -124,14 +137,15 @@ module UglyTrivia
       !@players.winner?
     end
 
-    def apply_roll(roll)
-      current_player.board_location.move(roll)
+    def apply_roll(roll_results)
+      roll = roll_results.roll
 
-      notify_location(current_category)
+      roll_results.location_update = current_player.board_location.move(roll)
+      # temporal coupling with the move first.
+      roll_results.category = current_category
 
       question = @questions.next_question(current_category)
-
-      notify_question(question)
+      roll_results.question = question
     end
 
     def notify_correct_anwser
@@ -139,17 +153,17 @@ module UglyTrivia
       @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
     end
 
-    def notify_question(question)
-      @output.write question
+    def notify_question(roll_result)
+      @output.write roll_result.question
     end
 
     def notify_not_getting_out_of_penalty_box
       @output.write "#{current_player} is not getting out of the penalty box"
     end
 
-    def notify_location(current_category)
-      @output.write "#{current_player}'s new location is #{current_player.board_location}"
-      @output.write "The category is #{current_category}"
+    def notify_location(roll_results)
+      @output.write "#{current_player}'s new location is #{roll_results.location_update}"
+      @output.write "The category is #{roll_results.category}"
     end
 
     def notify_getting_out_penalty_box
@@ -293,5 +307,13 @@ module UglyTrivia
     def move_to_next_player
       @players.rotate!
     end
+  end
+
+  class RollResult
+    attr_accessor :roll
+    attr_accessor :penalty_applied
+    attr_accessor :category
+    attr_accessor :location_update
+    attr_accessor :question
   end
 end
