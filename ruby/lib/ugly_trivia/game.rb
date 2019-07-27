@@ -85,9 +85,9 @@ module UglyTrivia
 
           apply_roll(roll)
         else
-          notify_not_getting_out_of_penalty_box
-
           @is_getting_out_of_penalty_box = false
+
+          notify_not_getting_out_of_penalty_box
         end
       else
         apply_roll(roll)
@@ -95,45 +95,34 @@ module UglyTrivia
     end
 
     def was_correctly_answered
-      if @penalty_box.holding?(current_player)
-        if @is_getting_out_of_penalty_box
-          @output.write 'Answer was correct!!!!'
-
-          current_player.purse.add_coin
-
-          @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
-
-          @players.move_to_next_player
-
-          game_continues?
-        else
-          @players.move_to_next_player
-          true
-        end
-      else
-        @output.write "Answer was correct!!!!"
-
+      unless penalty_applied?
         current_player.purse.add_coin
 
-        @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
-
-        @players.move_to_next_player
-
-        game_continues?
+        notify_correct_anwser
       end
+
+      complete_turn
     end
 
     def wrong_answer
-      notify_wrong_answer
-
       @penalty_box.hold(current_player)
 
-      @players.move_to_next_player
+      notify_wrong_answer
 
-  		return true
+      complete_turn
     end
 
     private
+
+    def penalty_applied?
+      @penalty_box.holding?(current_player) && !@is_getting_out_of_penalty_box
+    end
+
+    def complete_turn
+      @players.move_to_next_player
+
+      !@players.winner?
+    end
 
     def apply_roll(roll)
       current_player.board_location.move(roll)
@@ -143,6 +132,11 @@ module UglyTrivia
       question = @questions.next_question(current_category)
 
       notify_question(question)
+    end
+
+    def notify_correct_anwser
+      @output.write 'Answer was correct!!!!'
+      @output.write "#{current_player} now has #{current_player.purse} Gold Coins."
     end
 
     def notify_question(question)
@@ -178,10 +172,6 @@ module UglyTrivia
 
     def current_category
       current_player.board_location.pointing_at_category
-    end
-
-    def game_continues?
-      @players.none? { |player| player.purse.total == 6 }
     end
   end
 
@@ -280,8 +270,6 @@ module UglyTrivia
   end
 
   class PlayerRotation
-    include Enumerable
-
     def initialize
       @players = []
     end
@@ -290,8 +278,8 @@ module UglyTrivia
       @players << player
     end
 
-    def each(&block)
-      @players.each(&block)
+    def winner?
+      @players.any? { |player| player.purse.total == 6 }
     end
 
     def number_of_players
