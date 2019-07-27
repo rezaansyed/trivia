@@ -44,7 +44,7 @@ module UglyTrivia
       @output.write "#{current_player} is the current player"
       @output.write "They have rolled a #{roll}"
 
-      if current_player_in_penalty_box?
+      if @penalty_box.holding?(current_player)
         if roll.odd?
           @is_getting_out_of_penalty_box = true
 
@@ -69,7 +69,7 @@ module UglyTrivia
     end
 
     def was_correctly_answered
-      if current_player_in_penalty_box?
+      if @penalty_box.holding?(current_player)
         if @is_getting_out_of_penalty_box
           @output.write 'Answer was correct!!!!'
           @purses[@current_player_position] += 1
@@ -96,7 +96,7 @@ module UglyTrivia
     def wrong_answer
       @output.write 'Question was incorrectly answered'
       @output.write "#{current_player} was sent to the penalty box"
-  		put_current_player_in_the_penalty_box
+      @penalty_box.hold(current_player)
 
       @current_player_position += 1
       @current_player_position = 0 if @current_player_position == @players.length
@@ -107,14 +107,6 @@ module UglyTrivia
 
     def current_player
       @players[@current_player_position]
-    end
-
-    def current_player_in_penalty_box?
-      @penalty_box.holding?(current_player)
-    end
-
-    def put_current_player_in_the_penalty_box
-      @penalty_box.hold(current_player)
     end
 
     def move_to_next_player
