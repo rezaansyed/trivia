@@ -33,7 +33,7 @@ module UglyTrivia
     end
 
     def add(player_name)
-      @players.push player_name
+      @players.push Player.new(player_name)
       @places[how_many_players] = 0
       @purses[how_many_players] = 0
       @in_penalty_box[how_many_players] = false
@@ -149,6 +149,16 @@ module UglyTrivia
   class ConsoleOutput
     def write(line)
       puts line
+    end
+  end
+
+  class Player
+    def initialize(name)
+      @name = name
+    end
+
+    def to_s
+      @name
     end
   end
 end
