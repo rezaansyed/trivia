@@ -197,7 +197,6 @@ describe "overall game" do
     def write(line)
       @output << line
       @unconsumed << line
-      puts line
     end
 
     def last(number = 1)
