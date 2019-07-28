@@ -74,30 +74,27 @@ module UglyTrivia
 
     def roll(roll)
       roll_result = start_turn.roll_result
-
       roll_result.roll = roll
 
       if @penalty_box.holding?(current_player)
         if roll.odd?
           roll_result.suspend_penalty
-
-          apply_roll(roll_result)
         else
           roll_result.apply_penalty
         end
-      else
-        apply_roll(roll_result)
       end
+
+      apply_roll(roll_result) unless roll_result.penalty_applied?
 
       complete_roll_step
     end
 
     def was_correctly_answered
-      answer_result = turn_tracking.answer_result
+      answer_result = turn.answer_result
 
       answer_result.question_answered_correctly
 
-      unless turn_tracking.penalty_applied?
+      unless turn.penalty_applied?
         answer_result.coins_increase_to = current_player.purse.add_coin
       end
 
@@ -105,7 +102,7 @@ module UglyTrivia
     end
 
     def wrong_answer
-      answer_result = turn_tracking.answer_result
+      answer_result = turn.answer_result
 
       answer_result.question_answered_incorrectly
 
@@ -117,18 +114,20 @@ module UglyTrivia
     private
 
     def start_turn
-      @turn_tracking = Turn.new(current_player)
-      @turn_notifier = TurnNotifier.new(@output, @turn_tracking)
-      @turn_tracking
+      @turn = Turn.new(current_player)
+      @turn_notifier = TurnNotifier.new(@output, @turn)
+      @turn
     end
 
-    attr_reader :turn_tracking
+    attr_reader :turn
 
     def complete_turn
       @turn_notifier.notify_answer_result
 
-      @players.move_to_next_player
+      @turn = nil
+      @turn_notifier = nil
 
+      @players.move_to_next_player
       !@players.winner?
     end
 
