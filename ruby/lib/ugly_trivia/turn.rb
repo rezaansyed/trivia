@@ -2,8 +2,10 @@ module UglyTrivia
   class Turn
     attr_reader :roll_result
     attr_reader :answer_result
+    attr_reader :player
 
     def initialize(player)
+      @player = player
       @roll_result = RollResult.new(player)
       @answer_result = AnswerResult.new(player)
     end

@@ -15,15 +15,9 @@ module UglyTrivia
       roll_result = start_turn.roll_result
       roll_result.roll = roll
 
-      if @penalty_box.holding?(roll_result.player)
-        if roll.odd?
-          roll_result.suspend_penalty
-        else
-          roll_result.apply_penalty
-        end
+      @penalty_box.execute_when_clear_of_penalty(turn) do |result|
+        apply_roll(result)
       end
-
-      apply_roll(roll_result) unless roll_result.penalty_applied?
 
       complete_roll_step
     end
@@ -33,8 +27,8 @@ module UglyTrivia
 
       answer_result.question_answered_correctly
 
-      unless turn.penalty_applied?
-        answer_result.coins_increase_to = answer_result.player.purse.add_coin
+      @penalty_box.reward_when_there_is_no_penalty_applied(turn) do |result|
+        result.coins_increase_to = result.player.purse.add_coin
       end
 
       complete_turn
