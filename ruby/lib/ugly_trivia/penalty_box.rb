@@ -8,7 +8,7 @@ module UglyTrivia
       @players << player
     end
 
-    def execute_when_clear_of_penalty(turn, &block)
+    def adjust_penalty_for_roll(turn)
       if holding?(turn.player)
         if turn.roll_result.roll.odd?
           turn.roll_result.suspend_penalty
@@ -16,15 +16,11 @@ module UglyTrivia
           turn.roll_result.apply_penalty
         end
       end
-
-      unless turn.roll_result.penalty_applied?
-        block.call(turn.roll_result)
-      end
     end
 
-    def reward_when_there_is_no_penalty_applied(turn, &block)
+    def run_when_no_penalty(turn, &block)
       unless turn.penalty_applied?
-        block.call(turn.answer_result)
+        block.call(turn)
       end
     end
 

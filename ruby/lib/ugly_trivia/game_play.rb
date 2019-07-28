@@ -15,8 +15,10 @@ module UglyTrivia
       roll_result = start_turn.roll_result
       roll_result.roll = roll
 
-      @penalty_box.execute_when_clear_of_penalty(turn) do |result|
-        apply_roll(result)
+      @penalty_box.adjust_penalty_for_roll(turn)
+
+      @penalty_box.run_when_no_penalty(turn) do |turn|
+        apply_roll(turn.roll_result)
       end
 
       complete_roll_step
@@ -27,8 +29,8 @@ module UglyTrivia
 
       answer_result.question_answered_correctly
 
-      @penalty_box.reward_when_there_is_no_penalty_applied(turn) do |result|
-        result.coins_increase_to = result.player.purse.add_coin
+      @penalty_box.run_when_no_penalty(turn) do |turn|
+        turn.answer_result.coins_increase_to = turn.player.purse.add_coin
       end
 
       complete_turn
@@ -39,7 +41,7 @@ module UglyTrivia
 
       answer_result.question_answered_incorrectly
 
-      @penalty_box.hold(answer_result.player)
+      @penalty_box.hold(turn.player)
 
       complete_turn
     end
