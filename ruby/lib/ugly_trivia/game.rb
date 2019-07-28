@@ -8,7 +8,6 @@ module UglyTrivia
       @categories = ['Pop', 'Science', 'Sports', 'Rock']
 
       @questions = CategorizedQuestions.new(@categories)
-      @current_player_position = 0
 
       50.times do |i|
         @questions.add('Pop', "Pop Question #{i}")
