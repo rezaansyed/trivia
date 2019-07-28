@@ -75,7 +75,7 @@ module UglyTrivia
       roll_result = start_turn.roll_result
       roll_result.roll = roll
 
-      if @penalty_box.holding?(current_player)
+      if @penalty_box.holding?(roll_result.player)
         if roll.odd?
           roll_result.suspend_penalty
         else
@@ -94,7 +94,7 @@ module UglyTrivia
       answer_result.question_answered_correctly
 
       unless turn.penalty_applied?
-        answer_result.coins_increase_to = current_player.purse.add_coin
+        answer_result.coins_increase_to = answer_result.player.purse.add_coin
       end
 
       complete_turn
@@ -105,7 +105,7 @@ module UglyTrivia
 
       answer_result.question_answered_incorrectly
 
-      @penalty_box.hold(current_player)
+      @penalty_box.hold(answer_result.player)
 
       complete_turn
     end
@@ -113,7 +113,7 @@ module UglyTrivia
     private
 
     def start_turn
-      @turn = Turn.new(current_player)
+      @turn = Turn.new(@players.current_player)
       @turn_notifier = TurnNotifier.new(@output, @turn)
       @turn
     end
@@ -121,13 +121,26 @@ module UglyTrivia
     attr_reader :turn
 
     def complete_turn
-      @turn_notifier.notify_answer_result
+      notify_turn_completion
 
+      prepare_for_next_turn
+
+      game_continues?
+    end
+
+    def game_continues?
+      !@players.winner?
+    end
+
+    def prepare_for_next_turn
       @turn = nil
       @turn_notifier = nil
 
       @players.move_to_next_player
-      !@players.winner?
+    end
+
+    def notify_turn_completion
+      @turn_notifier.notify_answer_result
     end
 
     def complete_roll_step
@@ -137,14 +150,10 @@ module UglyTrivia
     def apply_roll(roll_result)
       roll = roll_result.roll
 
-      roll_result.location_update = current_player.board_location.move(roll)
+      roll_result.location_update = roll_result.player.board_location.move(roll)
 
       question = @questions.next_question(roll_result.location_update.category)
       roll_result.question = question
-    end
-
-    def current_player
-      @players.current_player
     end
   end
 
