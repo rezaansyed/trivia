@@ -64,7 +64,7 @@ module UglyTrivia
 
     def notify_roll
       @output.write "#{roll_result.player} is the current player"
-      @output.write "They have rolled a #{roll_result.roll}"
+      @output.write "They have rolled a #{@turn.roll}"
     end
   end
 end

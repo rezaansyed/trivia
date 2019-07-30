@@ -12,13 +12,12 @@ module UglyTrivia
     end
 
     def roll(roll)
-      roll_result = start_turn.roll_result
-      roll_result.roll = roll
+      turn = start_turn(roll)
 
       penalty_box.adjust_penalty_for_roll(turn)
 
-      penalty_box.run_when_no_penalty(turn) do |turn|
-        apply_roll(turn.roll_result)
+      penalty_box.run_when_no_penalty(turn) do |t|
+        apply_roll(t)
       end
 
       complete_roll_step
@@ -50,8 +49,8 @@ module UglyTrivia
     attr_reader :players
     attr_reader :penalty_box
 
-    def start_turn
-      @turn = Turn.new(players.current_player)
+    def start_turn(roll)
+      @turn = Turn.new(players.current_player, roll)
       @turn_notifier = TurnNotifier.new(@output, @turn)
       @turn
     end
@@ -86,12 +85,12 @@ module UglyTrivia
       @turn_notifier.notify_roll_result
     end
 
-    def apply_roll(roll_result)
-      roll = roll_result.roll
+    def apply_roll(turn)
+      location_update = turn.player.board_location.move(turn.roll)
 
-      roll_result.location_update = roll_result.player.board_location.move(roll)
+      turn.roll_result.location_update = location_update
 
-      roll_result.question = @questions.next_question(roll_result.location_update.category)
+      turn.roll_result.question = @questions.next_question(location_update.category)
     end
   end
 end

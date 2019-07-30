@@ -80,11 +80,7 @@ describe UglyTrivia::PenaltyBox do
 
     context 'with an odd roll' do
       let(:roll) { 1 }
-      let(:turn) { UglyTrivia::Turn.new(player) }
-
-      before do
-        turn.roll_result.roll = roll
-      end
+      let(:turn) { UglyTrivia::Turn.new(player, roll) }
 
       it 'has no penalty applied' do
         subject.adjust_penalty_for_roll(turn)

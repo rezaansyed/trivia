@@ -3,16 +3,13 @@ module UglyTrivia
     attr_reader :roll_result
     attr_reader :answer_result
     attr_reader :player
+    attr_reader :roll
 
-    def initialize(player, roll = nil)
+    def initialize(player, roll)
       @player = player
       @roll = roll
       @roll_result = RollResult.new(player)
       @answer_result = AnswerResult.new(player)
-    end
-
-    def roll
-      @roll || roll_result.roll
     end
   end
 
@@ -47,7 +44,6 @@ module UglyTrivia
   end
 
   class RollResult
-    attr_accessor :roll
     attr_accessor :category
     attr_accessor :location_update
     attr_accessor :question
