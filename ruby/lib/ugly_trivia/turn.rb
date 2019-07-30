@@ -4,14 +4,15 @@ module UglyTrivia
     attr_reader :answer_result
     attr_reader :player
 
-    def initialize(player)
+    def initialize(player, roll = nil)
       @player = player
+      @roll = roll
       @roll_result = RollResult.new(player)
       @answer_result = AnswerResult.new(player)
     end
 
-    def penalty_applied?
-      @roll_result.penalty_applied?
+    def roll
+      @roll || roll_result.roll
     end
   end
 

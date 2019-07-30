@@ -15,9 +15,9 @@ module UglyTrivia
       roll_result = start_turn.roll_result
       roll_result.roll = roll
 
-      @penalty_box.adjust_penalty_for_roll(turn)
+      penalty_box.adjust_penalty_for_roll(turn)
 
-      @penalty_box.run_when_no_penalty(turn) do |turn|
+      penalty_box.run_when_no_penalty(turn) do |turn|
         apply_roll(turn.roll_result)
       end
 
@@ -29,7 +29,7 @@ module UglyTrivia
 
       answer_result.question_answered_correctly
 
-      @penalty_box.run_when_no_penalty(turn) do |turn|
+      penalty_box.run_when_no_penalty(turn) do |turn|
         turn.answer_result.coins_increase_to = turn.player.purse.add_coin
       end
 
@@ -37,24 +37,24 @@ module UglyTrivia
     end
 
     def wrong_answer
-      answer_result = turn.answer_result
+      turn.answer_result.question_answered_incorrectly
 
-      answer_result.question_answered_incorrectly
-
-      @penalty_box.hold(turn.player)
+      penalty_box.hold(turn.player)
 
       complete_turn
     end
 
     private
 
+    attr_reader :turn
+    attr_reader :players
+    attr_reader :penalty_box
+
     def start_turn
-      @turn = Turn.new(@players.current_player)
+      @turn = Turn.new(players.current_player)
       @turn_notifier = TurnNotifier.new(@output, @turn)
       @turn
     end
-
-    attr_reader :turn
 
     def complete_turn
       notify_turn_completion
@@ -65,14 +65,17 @@ module UglyTrivia
     end
 
     def game_continues?
-      !@players.winner?
+      !players.winner?
     end
 
     def prepare_for_next_turn
+      clear_turn_storage
+      players.move_to_next_player
+    end
+
+    def clear_turn_storage
       @turn = nil
       @turn_notifier = nil
-
-      @players.move_to_next_player
     end
 
     def notify_turn_completion
@@ -88,8 +91,7 @@ module UglyTrivia
 
       roll_result.location_update = roll_result.player.board_location.move(roll)
 
-      question = @questions.next_question(roll_result.location_update.category)
-      roll_result.question = question
+      roll_result.question = @questions.next_question(roll_result.location_update.category)
     end
   end
 end
