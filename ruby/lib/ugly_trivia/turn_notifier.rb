@@ -17,7 +17,7 @@ module UglyTrivia
       end
     end
 
-    def notify_answer_result(r = nil)
+    def notify_answer_result
       if answer_result.answered_incorrectly?
         notify_wrong_answer
       elsif answer_result.rewarded?
@@ -27,17 +27,19 @@ module UglyTrivia
 
     private
 
+    attr_reader :turn
+
     def roll_result
-      @turn.roll_result
+      turn.roll_result
     end
 
     def answer_result
-      @turn.answer_result
+      turn.answer_result
     end
 
     def notify_correct_anwser
       @output.write 'Answer was correct!!!!'
-      @output.write "#{answer_result.player} now has #{answer_result.coins_increase_to} Gold Coins."
+      @output.write "#{turn.player} now has #{answer_result.coins_increase_to} Gold Coins."
     end
 
     def notify_question
@@ -45,26 +47,26 @@ module UglyTrivia
     end
 
     def notify_not_getting_out_of_penalty_box
-      @output.write "#{roll_result.player} is not getting out of the penalty box"
+      @output.write "#{turn.player} is not getting out of the penalty box"
     end
 
     def notify_location
-      @output.write "#{roll_result.player}'s new location is #{roll_result.location_update.new_location}"
+      @output.write "#{turn.player}'s new location is #{roll_result.location_update.new_location}"
       @output.write "The category is #{roll_result.location_update.category}"
     end
 
     def notify_getting_out_penalty_box
-      @output.write "#{roll_result.player} is getting out of the penalty box"
+      @output.write "#{turn.player} is getting out of the penalty box"
     end
 
     def notify_wrong_answer
       @output.write 'Question was incorrectly answered'
-      @output.write "#{answer_result.player} was sent to the penalty box"
+      @output.write "#{turn.player} was sent to the penalty box"
     end
 
     def notify_roll
-      @output.write "#{roll_result.player} is the current player"
-      @output.write "They have rolled a #{@turn.roll}"
+      @output.write "#{turn.player} is the current player"
+      @output.write "They have rolled a #{turn.roll}"
     end
   end
 end

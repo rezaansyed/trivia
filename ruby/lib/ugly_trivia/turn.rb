@@ -8,18 +8,16 @@ module UglyTrivia
     def initialize(player, roll)
       @player = player
       @roll = roll
-      @roll_result = RollResult.new(player)
-      @answer_result = AnswerResult.new(player)
+      @roll_result = RollResult.new
+      @answer_result = AnswerResult.new
     end
   end
 
   class AnswerResult
     attr_accessor :coins_increase_to
-    attr_reader :player
 
-    def initialize(player)
+    def initialize
       @answer = :not_answered
-      @player = player
     end
 
     def rewarded?
@@ -44,14 +42,11 @@ module UglyTrivia
   end
 
   class RollResult
-    attr_accessor :category
     attr_accessor :location_update
     attr_accessor :question
-    attr_reader :player
 
-    def initialize(player)
+    def initialize
       @penalty_status = :no_penalty
-      @player = player
     end
 
     def suspend_penalty
