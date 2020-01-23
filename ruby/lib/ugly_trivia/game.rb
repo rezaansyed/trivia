@@ -67,7 +67,7 @@ module UglyTrivia
         else
           @output.write "#{@players[@current_player]} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
-          end
+        end
 
       else
 
@@ -80,7 +80,7 @@ module UglyTrivia
       end
     end
 
-  private
+    private
 
     def ask_question
       @output.write @pop_questions.shift if current_category == 'Pop'
@@ -102,7 +102,7 @@ module UglyTrivia
       return 'Rock'
     end
 
-  public
+    public
 
     def was_correctly_answered
       if @in_penalty_box[@current_player]
@@ -141,16 +141,16 @@ module UglyTrivia
     end
 
     def wrong_answer
-  		@output.write 'Question was incorrectly answered'
-  		@output.write "#{@players[@current_player]} was sent to the penalty box"
-  		@in_penalty_box[@current_player] = true
+      @output.write 'Question was incorrectly answered'
+      @output.write "#{@players[@current_player]} was sent to the penalty box"
+      @in_penalty_box[@current_player] = true
 
       @current_player += 1
       @current_player = 0 if @current_player == @players.length
-  		return true
+      return true
     end
 
-  private
+    private
 
     def did_player_win
       !(@purses[@current_player] == 6)
