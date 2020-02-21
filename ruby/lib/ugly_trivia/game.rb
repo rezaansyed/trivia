@@ -21,12 +21,8 @@ module UglyTrivia
         @pop_questions.push "Pop Question #{i}"
         @science_questions.push "Science Question #{i}"
         @sports_questions.push "Sports Question #{i}"
-        @rock_questions.push create_rock_question(i)
+        @rock_questions.push "Rock Question #{i}"
       end
-    end
-
-    def create_rock_question(index)
-      "Rock Question #{index}"
     end
 
     def is_playable?
@@ -68,9 +64,7 @@ module UglyTrivia
           @output.write "#{@players[@current_player]} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
         end
-
       else
-
         @places[@current_player] = @places[@current_player] + roll
         @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
 
@@ -79,30 +73,6 @@ module UglyTrivia
         ask_question
       end
     end
-
-    private
-
-    def ask_question
-      @output.write @pop_questions.shift if current_category == 'Pop'
-      @output.write @science_questions.shift if current_category == 'Science'
-      @output.write @sports_questions.shift if current_category == 'Sports'
-      @output.write @rock_questions.shift if current_category == 'Rock'
-    end
-
-    def current_category
-      return 'Pop' if @places[@current_player] == 0
-      return 'Pop' if @places[@current_player] == 4
-      return 'Pop' if @places[@current_player] == 8
-      return 'Science' if @places[@current_player] == 1
-      return 'Science' if @places[@current_player] == 5
-      return 'Science' if @places[@current_player] == 9
-      return 'Sports' if @places[@current_player] == 2
-      return 'Sports' if @places[@current_player] == 6
-      return 'Sports' if @places[@current_player] == 10
-      return 'Rock'
-    end
-
-    public
 
     def was_correctly_answered
       if @in_penalty_box[@current_player]
@@ -123,11 +93,7 @@ module UglyTrivia
           @current_player = 0 if @current_player == @players.length
           true
         end
-
-
-
       else
-
         @output.write "Answer was corrent!!!!"
         @purses[@current_player] += 1
         @output.write "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
@@ -151,6 +117,26 @@ module UglyTrivia
     end
 
     private
+
+    def ask_question
+      @output.write @pop_questions.shift if current_category == 'Pop'
+      @output.write @science_questions.shift if current_category == 'Science'
+      @output.write @sports_questions.shift if current_category == 'Sports'
+      @output.write @rock_questions.shift if current_category == 'Rock'
+    end
+
+    def current_category
+      return 'Pop' if @places[@current_player] == 0
+      return 'Pop' if @places[@current_player] == 4
+      return 'Pop' if @places[@current_player] == 8
+      return 'Science' if @places[@current_player] == 1
+      return 'Science' if @places[@current_player] == 5
+      return 'Science' if @places[@current_player] == 9
+      return 'Sports' if @places[@current_player] == 2
+      return 'Sports' if @places[@current_player] == 6
+      return 'Sports' if @places[@current_player] == 10
+      return 'Rock'
+    end
 
     def did_player_win
       !(@purses[@current_player] == 6)
