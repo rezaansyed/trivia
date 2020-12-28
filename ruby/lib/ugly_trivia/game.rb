@@ -66,24 +66,22 @@ module UglyTrivia
     def roll(roll)
       notify_current_player_roll(player: current_player, roll: roll)
 
+      # Check roll value
       return skip_turn if in_penalty_box_with_even_roll(roll)
 
       if current_player.in_penalty_box?
         @is_getting_out_of_penalty_box = true
-
         @output.write "#{current_player.name} is getting out of the penalty box"
-        current_player.roll(roll)
-
-        @output.write "#{current_player.name}'s new location is #{current_player.place}"
-        @output.write "The category is #{current_category}"
-        ask_question
-      else
-        current_player.roll(roll)
-
-        @output.write "#{current_player.name}'s new location is #{current_player.place}"
-        @output.write "The category is #{current_category}"
-        ask_question
       end
+
+      # Update placement
+      current_player.roll(roll)
+
+      @output.write "#{current_player.name}'s new location is #{current_player.place}"
+      @output.write "The category is #{current_category}"
+
+      # Ask question
+      ask_question
     end
 
     def was_correctly_answered
