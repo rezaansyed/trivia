@@ -1,9 +1,12 @@
 require 'spec_helper'
 require 'ugly_trivia/game'
+require 'ugly_trivia/accumulating_output'
 
 describe "game" do
+  output = AccumulatingOutput.new
+
   it "adds new player to game" do
-    game = UglyTrivia::Game.new
+    game = UglyTrivia::Game.new(output)
 
     game.add('Player 1')
 
@@ -11,7 +14,7 @@ describe "game" do
   end
 
   it "is not playable if less than 2 players" do
-    game = UglyTrivia::Game.new
+    game = UglyTrivia::Game.new(output)
 
     game.add('Player 1')
 
@@ -19,7 +22,7 @@ describe "game" do
   end
 
   it "is playable if 2 or more players" do
-    game = UglyTrivia::Game.new
+    game = UglyTrivia::Game.new(output)
 
     game.add('Player 1')
     game.add('Player 2')

@@ -43,10 +43,6 @@ module UglyTrivia
       true
     end
 
-    def how_many_players
-      @players.length
-    end
-
     def roll(roll)
       @output.write "#{@players[@current_player]} is the current player"
       @output.write "They have rolled a #{roll}"
