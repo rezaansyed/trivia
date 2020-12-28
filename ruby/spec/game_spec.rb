@@ -5,14 +5,6 @@ require 'ugly_trivia/accumulating_output'
 describe "game" do
   output = AccumulatingOutput.new
 
-  it "adds new player to game" do
-    game = UglyTrivia::Game.new(output)
-
-    game.add('Player 1')
-
-    expect(game.players).to include('Player 1')
-  end
-
   it "is not playable if less than 2 players" do
     game = UglyTrivia::Game.new(output)
 
@@ -28,5 +20,19 @@ describe "game" do
     game.add('Player 2')
 
     expect(game.is_playable?).to be_truthy
+  end
+
+  it "add 7 players to game" do
+    game = UglyTrivia::Game.new(output)
+
+    game.add('Player 1')
+    game.add('Player 2')
+    game.add('Player 3')
+    game.add('Player 4')
+    game.add('Player 5')
+    game.add('Player 6')
+    game.add('Player 7')
+
+    expect(game.purses.length).to eql(7)
   end
 end

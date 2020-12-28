@@ -1,10 +1,17 @@
 require_relative './console_output'
 
 module UglyTrivia
-  class Game
-    attr_accessor :players
+  class Player
+    attr_reader :name
+    def initialize(name:)
+      @name = name
+    end
+  end
 
-    def  initialize(output = ConsoleOutput.new)
+  class Game
+    attr_accessor :players, :purses
+
+    def initialize(output = ConsoleOutput.new)
       @output = output
       @players = []
       @places = Array.new(6, 0)
@@ -32,7 +39,7 @@ module UglyTrivia
     end
 
     def add(player_name)
-      players.push player_name
+      players.push Player.new(name: player_name)
       @places[players.length] = 0
       @purses[players.length] = 0
       @in_penalty_box[players.length] = false
@@ -44,29 +51,29 @@ module UglyTrivia
     end
 
     def roll(roll)
-      @output.write "#{@players[@current_player]} is the current player"
+      @output.write "#{@players[@current_player].name} is the current player"
       @output.write "They have rolled a #{roll}"
 
       if @in_penalty_box[@current_player]
         if roll % 2 != 0
           @is_getting_out_of_penalty_box = true
 
-          @output.write "#{@players[@current_player]} is getting out of the penalty box"
+          @output.write "#{@players[@current_player].name} is getting out of the penalty box"
           @places[@current_player] = @places[@current_player] + roll
           @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
 
-          @output.write "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
+          @output.write "#{@players[@current_player].name}'s new location is #{@places[@current_player]}"
           @output.write "The category is #{current_category}"
           ask_question
         else
-          @output.write "#{@players[@current_player]} is not getting out of the penalty box"
+          @output.write "#{@players[@current_player].name} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
         end
       else
         @places[@current_player] = @places[@current_player] + roll
         @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
 
-        @output.write "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
+        @output.write "#{@players[@current_player].name}'s new location is #{@places[@current_player]}"
         @output.write "The category is #{current_category}"
         ask_question
       end
@@ -78,7 +85,7 @@ module UglyTrivia
           @output.write 'Answer was correct!!!!'
           @purses[@current_player] += 1
 
-          @output.write "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+          @output.write "#{@players[@current_player].name} now has #{@purses[@current_player]} Gold Coins."
 
           winner = did_player_win()
 
@@ -94,7 +101,7 @@ module UglyTrivia
       else
         @output.write "Answer was corrent!!!!"
         @purses[@current_player] += 1
-        @output.write "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+        @output.write "#{@players[@current_player].name} now has #{@purses[@current_player]} Gold Coins."
 
         winner = did_player_win
         @current_player += 1
@@ -106,7 +113,7 @@ module UglyTrivia
 
     def wrong_answer
       @output.write 'Question was incorrectly answered'
-      @output.write "#{@players[@current_player]} was sent to the penalty box"
+      @output.write "#{@players[@current_player].name} was sent to the penalty box"
       @in_penalty_box[@current_player] = true
 
       @current_player += 1
