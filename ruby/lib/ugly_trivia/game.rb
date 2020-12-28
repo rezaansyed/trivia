@@ -144,15 +144,9 @@ module UglyTrivia
     end
 
     def current_category
-      return 'Pop' if players[@current_player].place == 0
-      return 'Pop' if players[@current_player].place == 4
-      return 'Pop' if players[@current_player].place == 8
-      return 'Science' if players[@current_player].place == 1
-      return 'Science' if players[@current_player].place == 5
-      return 'Science' if players[@current_player].place == 9
-      return 'Sports' if players[@current_player].place == 2
-      return 'Sports' if players[@current_player].place == 6
-      return 'Sports' if players[@current_player].place == 10
+      return 'Pop' if players[@current_player].place % 4 == 0
+      return 'Science' if players[@current_player].place % 4 == 1
+      return 'Sports' if players[@current_player].place % 4 == 2
       return 'Rock'
     end
 
