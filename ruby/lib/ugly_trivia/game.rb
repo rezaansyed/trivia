@@ -2,17 +2,30 @@ require_relative './console_output'
 
 module UglyTrivia
   class Player
-    attr_reader :name
-    attr_accessor :place, :purse
+    attr_reader :name, :place
+    attr_accessor :purse
 
     def initialize(name:)
       @name = name
       @purse = 0
       @place = 0
+      @in_penalty_box = false
     end
 
     def roll(roll_number)
       @place = (@place + roll_number) % 12
+    end
+
+    def in_penalty_box?
+      @in_penalty_box
+    end
+
+    def place_in_penalty_box
+      @in_penalty_box = true
+    end
+
+    def remove_from_penalty_box
+      @in_penalty_box = false
     end
   end
 
@@ -22,8 +35,6 @@ module UglyTrivia
     def initialize(output = ConsoleOutput.new)
       @output = output
       @players = []
-      @places = Array.new(6, 0)
-      @in_penalty_box = Array.new(6, nil)
 
       @pop_questions = []
       @science_questions = []
@@ -47,7 +58,6 @@ module UglyTrivia
 
     def add(player_name)
       players.push Player.new(name: player_name)
-      @in_penalty_box[players.length] = false
 
       @output.write "#{player_name} was added"
       @output.write "They are player number #{players.length}"
@@ -59,7 +69,7 @@ module UglyTrivia
       @output.write "#{players[@current_player].name} is the current player"
       @output.write "They have rolled a #{roll}"
 
-      if @in_penalty_box[@current_player]
+      if players[@current_player].in_penalty_box?
         if roll % 2 != 0
           @is_getting_out_of_penalty_box = true
 
@@ -83,14 +93,14 @@ module UglyTrivia
     end
 
     def was_correctly_answered
-      if @in_penalty_box[@current_player]
+      if players[@current_player].in_penalty_box?
         if @is_getting_out_of_penalty_box
           @output.write 'Answer was correct!!!!'
           players[@current_player].purse += 1
 
           @output.write "#{players[@current_player].name} now has #{players[@current_player].purse} Gold Coins."
 
-          winner = did_player_win()
+          winner = did_player_win
 
           @current_player += 1
           @current_player = 0 if @current_player == @players.length
@@ -117,10 +127,10 @@ module UglyTrivia
     def wrong_answer
       @output.write 'Question was incorrectly answered'
       @output.write "#{@players[@current_player].name} was sent to the penalty box"
-      @in_penalty_box[@current_player] = true
+      players[@current_player].place_in_penalty_box
 
       @current_player += 1
-      @current_player = 0 if @current_player == @players.length
+      @current_player = 0 if @current_player == players.length
       return true
     end
 
