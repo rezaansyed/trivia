@@ -1,20 +1,20 @@
 require_relative './console_output'
 require_relative './player'
+require_relative './trivia_players'
 
 module UglyTrivia
   class Game
-    attr_accessor :players, :purses
+    attr_accessor :players
 
     def initialize(output = ConsoleOutput.new)
       @output = output
-      @players = []
+      @players = TriviaPlayers.new
 
       @pop_questions = []
       @science_questions = []
       @sports_questions = []
       @rock_questions = []
 
-      @current_player = 0
       @is_getting_out_of_penalty_box = false
 
       50.times do |i|
@@ -30,7 +30,7 @@ module UglyTrivia
     end
 
     def add(player_name)
-      players.push Player.new(name: player_name)
+      players.add Player.new(name: player_name)
 
       @output.write "#{player_name} was added"
       @output.write "They are player number #{players.length}"
@@ -39,59 +39,56 @@ module UglyTrivia
     end
 
     def roll(roll)
-      @output.write "#{players[@current_player].name} is the current player"
+      @output.write "#{current_player.name} is the current player"
       @output.write "They have rolled a #{roll}"
 
-      if players[@current_player].in_penalty_box?
+      if current_player.in_penalty_box?
         if roll % 2 != 0
           @is_getting_out_of_penalty_box = true
 
-          @output.write "#{players[@current_player].name} is getting out of the penalty box"
-          players[@current_player].roll(roll)
+          @output.write "#{current_player.name} is getting out of the penalty box"
+          current_player.roll(roll)
 
-          @output.write "#{players[@current_player].name}'s new location is #{players[@current_player].place}"
+          @output.write "#{current_player.name}'s new location is #{current_player.place}"
           @output.write "The category is #{current_category}"
           ask_question
         else
-          @output.write "#{players[@current_player].name} is not getting out of the penalty box"
+          @output.write "#{current_player.name} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
         end
       else
-        players[@current_player].roll(roll)
+        current_player.roll(roll)
 
-        @output.write "#{@players[@current_player].name}'s new location is #{players[@current_player].place}"
+        @output.write "#{current_player.name}'s new location is #{current_player.place}"
         @output.write "The category is #{current_category}"
         ask_question
       end
     end
 
     def was_correctly_answered
-      if players[@current_player].in_penalty_box?
+      if current_player.in_penalty_box?
         if @is_getting_out_of_penalty_box
           @output.write 'Answer was correct!!!!'
-          players[@current_player].purse += 1
+          current_player.purse += 1
 
-          @output.write "#{players[@current_player].name} now has #{players[@current_player].purse} Gold Coins."
+          @output.write "#{current_player.name} now has #{current_player.purse} Gold Coins."
 
           winner = did_player_win
 
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
+          next_player
 
           winner
         else
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
+          next_player
           true
         end
       else
         @output.write "Answer was corrent!!!!"
-        players[@current_player].purse += 1
-        @output.write "#{players[@current_player].name} now has #{players[@current_player].purse} Gold Coins."
+        current_player.purse += 1
+        @output.write "#{current_player.name} now has #{current_player.purse} Gold Coins."
 
         winner = did_player_win
-        @current_player += 1
-        @current_player = 0 if @current_player == @players.length
+        next_player
 
         return winner
       end
@@ -99,15 +96,22 @@ module UglyTrivia
 
     def wrong_answer
       @output.write 'Question was incorrectly answered'
-      @output.write "#{@players[@current_player].name} was sent to the penalty box"
-      players[@current_player].place_in_penalty_box
+      @output.write "#{current_player.name} was sent to the penalty box"
+      current_player.place_in_penalty_box
 
-      @current_player += 1
-      @current_player = 0 if @current_player == players.length
+      next_player
       return true
     end
 
     private
+
+    def current_player
+      players.current_player
+    end
+
+    def next_player
+      players.next_player
+    end
 
     def ask_question
       @output.write @pop_questions.shift if current_category == 'Pop'
@@ -117,14 +121,14 @@ module UglyTrivia
     end
 
     def current_category
-      return 'Pop' if players[@current_player].place % 4 == 0
-      return 'Science' if players[@current_player].place % 4 == 1
-      return 'Sports' if players[@current_player].place % 4 == 2
+      return 'Pop' if current_player.place % 4 == 0
+      return 'Science' if current_player.place % 4 == 1
+      return 'Sports' if current_player.place % 4 == 2
       return 'Rock'
     end
 
     def did_player_win
-      !(players[@current_player].purse == 6)
+      !(current_player.purse == 6)
     end
   end
 end
