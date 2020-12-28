@@ -54,23 +54,29 @@ module UglyTrivia
       notify_player_added(player: new_player, number_of_players: players.length)
     end
 
+    def in_penalty_box_with_even_roll(roll)
+      current_player.in_penalty_box? && roll % 2 == 0
+    end
+
+    def skip_turn
+      @output.write "#{current_player.name} is not getting out of the penalty box"
+      @is_getting_out_of_penalty_box = false
+    end
+
     def roll(roll)
       notify_current_player_roll(player: current_player, roll: roll)
 
+      return skip_turn if in_penalty_box_with_even_roll(roll)
+
       if current_player.in_penalty_box?
-        if roll % 2 != 0
-          @is_getting_out_of_penalty_box = true
+        @is_getting_out_of_penalty_box = true
 
-          @output.write "#{current_player.name} is getting out of the penalty box"
-          current_player.roll(roll)
+        @output.write "#{current_player.name} is getting out of the penalty box"
+        current_player.roll(roll)
 
-          @output.write "#{current_player.name}'s new location is #{current_player.place}"
-          @output.write "The category is #{current_category}"
-          ask_question
-        else
-          @output.write "#{current_player.name} is not getting out of the penalty box"
-          @is_getting_out_of_penalty_box = false
-        end
+        @output.write "#{current_player.name}'s new location is #{current_player.place}"
+        @output.write "The category is #{current_category}"
+        ask_question
       else
         current_player.roll(roll)
 
