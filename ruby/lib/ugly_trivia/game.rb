@@ -17,6 +17,10 @@ module GameNotifier
     @output.write 'Question was incorrectly answered'
     @output.write "#{player.name} was sent to the penalty box"
   end
+
+  def notify_correct_answer
+    @output.write 'Answer was correct!!!!'
+  end
 end
 
 module UglyTrivia
@@ -85,32 +89,20 @@ module UglyTrivia
     end
 
     def was_correctly_answered
-      if current_player.in_penalty_box?
-        if @is_getting_out_of_penalty_box
-          @output.write 'Answer was correct!!!!'
-          current_player.purse += 1
-
-          @output.write "#{current_player.name} now has #{current_player.purse} Gold Coins."
-
-          winner = did_player_win
-
-          next_player
-
-          winner
-        else
-          next_player
-          true
-        end
-      else
-        @output.write "Answer was corrent!!!!"
-        current_player.purse += 1
-        @output.write "#{current_player.name} now has #{current_player.purse} Gold Coins."
-
-        winner = did_player_win
+      if current_player.in_penalty_box? && !@is_getting_out_of_penalty_box
         next_player
-
-        return winner
+        return true
       end
+
+      notify_correct_answer
+      current_player.purse += 1
+      @output.write "#{current_player.name} now has #{current_player.purse} Gold Coins."
+
+      winner = did_player_win
+
+      next_player
+
+      winner
     end
 
     def wrong_answer
