@@ -3,10 +3,16 @@ require_relative './console_output'
 module UglyTrivia
   class Player
     attr_reader :name
-    attr_accessor :purse
+    attr_accessor :place, :purse
+
     def initialize(name:)
       @name = name
       @purse = 0
+      @place = 0
+    end
+
+    def roll(roll_number)
+      @place = (@place + roll_number) % 12
     end
   end
 
@@ -41,7 +47,6 @@ module UglyTrivia
 
     def add(player_name)
       players.push Player.new(name: player_name)
-      @places[players.length] = 0
       @in_penalty_box[players.length] = false
 
       @output.write "#{player_name} was added"
@@ -51,29 +56,27 @@ module UglyTrivia
     end
 
     def roll(roll)
-      @output.write "#{@players[@current_player].name} is the current player"
+      @output.write "#{players[@current_player].name} is the current player"
       @output.write "They have rolled a #{roll}"
 
       if @in_penalty_box[@current_player]
         if roll % 2 != 0
           @is_getting_out_of_penalty_box = true
 
-          @output.write "#{@players[@current_player].name} is getting out of the penalty box"
-          @places[@current_player] = @places[@current_player] + roll
-          @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
+          @output.write "#{players[@current_player].name} is getting out of the penalty box"
+          players[@current_player].roll(roll)
 
-          @output.write "#{@players[@current_player].name}'s new location is #{@places[@current_player]}"
+          @output.write "#{players[@current_player].name}'s new location is #{players[@current_player].place}"
           @output.write "The category is #{current_category}"
           ask_question
         else
-          @output.write "#{@players[@current_player].name} is not getting out of the penalty box"
+          @output.write "#{players[@current_player].name} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
         end
       else
-        @places[@current_player] = @places[@current_player] + roll
-        @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
+        players[@current_player].roll(roll)
 
-        @output.write "#{@players[@current_player].name}'s new location is #{@places[@current_player]}"
+        @output.write "#{@players[@current_player].name}'s new location is #{players[@current_player].place}"
         @output.write "The category is #{current_category}"
         ask_question
       end
@@ -131,15 +134,15 @@ module UglyTrivia
     end
 
     def current_category
-      return 'Pop' if @places[@current_player] == 0
-      return 'Pop' if @places[@current_player] == 4
-      return 'Pop' if @places[@current_player] == 8
-      return 'Science' if @places[@current_player] == 1
-      return 'Science' if @places[@current_player] == 5
-      return 'Science' if @places[@current_player] == 9
-      return 'Sports' if @places[@current_player] == 2
-      return 'Sports' if @places[@current_player] == 6
-      return 'Sports' if @places[@current_player] == 10
+      return 'Pop' if players[@current_player].place == 0
+      return 'Pop' if players[@current_player].place == 4
+      return 'Pop' if players[@current_player].place == 8
+      return 'Science' if players[@current_player].place == 1
+      return 'Science' if players[@current_player].place == 5
+      return 'Science' if players[@current_player].place == 9
+      return 'Sports' if players[@current_player].place == 2
+      return 'Sports' if players[@current_player].place == 6
+      return 'Sports' if players[@current_player].place == 10
       return 'Rock'
     end
 
