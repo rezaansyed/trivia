@@ -2,8 +2,27 @@ require_relative './console_output'
 require_relative './player'
 require_relative './trivia_players'
 
+module GameNotifier
+  def notify_player_added(player: , number_of_players: )
+    @output.write "#{player.name} was added"
+    @output.write "They are player number #{number_of_players}"
+  end
+
+  def notify_current_player_roll(player:, roll:)
+    @output.write "#{player.name} is the current player"
+    @output.write "They have rolled a #{roll}"
+  end
+
+  def notify_wrong_answer(player)
+    @output.write 'Question was incorrectly answered'
+    @output.write "#{player.name} was sent to the penalty box"
+  end
+end
+
 module UglyTrivia
   class Game
+    include GameNotifier
+
     attr_accessor :players
 
     def initialize(output = ConsoleOutput.new)
@@ -30,17 +49,13 @@ module UglyTrivia
     end
 
     def add(player_name)
-      players.add Player.new(name: player_name)
-
-      @output.write "#{player_name} was added"
-      @output.write "They are player number #{players.length}"
-
-      true
+      new_player = Player.new(name: player_name)
+      players.add new_player
+      notify_player_added(player: new_player, number_of_players: players.length)
     end
 
     def roll(roll)
-      @output.write "#{current_player.name} is the current player"
-      @output.write "They have rolled a #{roll}"
+      notify_current_player_roll(player: current_player, roll: roll)
 
       if current_player.in_penalty_box?
         if roll % 2 != 0
@@ -95,10 +110,8 @@ module UglyTrivia
     end
 
     def wrong_answer
-      @output.write 'Question was incorrectly answered'
-      @output.write "#{current_player.name} was sent to the penalty box"
       current_player.place_in_penalty_box
-
+      notify_wrong_answer(current_player)
       next_player
       return true
     end
