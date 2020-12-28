@@ -21,18 +21,4 @@ describe "game" do
 
     expect(game.is_playable?).to be_truthy
   end
-
-  it "add 7 players to game" do
-    game = UglyTrivia::Game.new(output)
-
-    game.add('Player 1')
-    game.add('Player 2')
-    game.add('Player 3')
-    game.add('Player 4')
-    game.add('Player 5')
-    game.add('Player 6')
-    game.add('Player 7')
-
-    expect(game.purses.length).to eql(7)
-  end
 end
