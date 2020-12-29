@@ -1,23 +1,4 @@
-class Location
-  def initialize
-    @location = 0
-  end
-
-  def move(roll)
-    @location = (@location + roll) % 12
-  end
-
-  def category
-    return 'Pop' if @location % 4 == 0
-    return 'Science' if @location % 4 == 1
-    return 'Sports' if @location % 4 == 2
-    return 'Rock'
-  end
-
-  def to_s
-    @location.to_s
-  end
-end
+require_relative './location'
 
 class Player
   attr_reader :name, :location
@@ -42,7 +23,7 @@ class Player
     @in_penalty_box = false
   end
 
-  def current_category
-    @location.category
+  def in_penalty_box_with_even_roll(roll)
+    current_player.in_penalty_box? && roll % 2 == 0
   end
 end

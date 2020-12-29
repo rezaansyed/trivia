@@ -73,10 +73,12 @@ module UglyTrivia
       # Check roll value
       return skip_turn if in_penalty_box_with_even_roll(roll)
 
+
       if current_player.in_penalty_box?
         @is_getting_out_of_penalty_box = true
         @output.write "#{current_player.name} is getting out of the penalty box"
       end
+
 
       # Update locationment
       current_player.location.move(roll)
@@ -122,11 +124,11 @@ module UglyTrivia
     end
 
     def ask_question
-      @output.write "The category is #{current_player.current_category}"
-      @output.write @pop_questions.shift if current_player.current_category == 'Pop'
-      @output.write @science_questions.shift if current_player.current_category == 'Science'
-      @output.write @sports_questions.shift if current_player.current_category == 'Sports'
-      @output.write @rock_questions.shift if current_player.current_category == 'Rock'
+      @output.write "The category is #{current_player.location.category}"
+      @output.write @pop_questions.shift if current_player.location.category == 'Pop'
+      @output.write @science_questions.shift if current_player.location.category == 'Science'
+      @output.write @sports_questions.shift if current_player.location.category == 'Sports'
+      @output.write @rock_questions.shift if current_player.location.category == 'Rock'
     end
 
     def did_player_win
