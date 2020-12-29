@@ -59,7 +59,7 @@ module UglyTrivia
     end
 
     def in_penalty_box_with_even_roll(roll)
-      current_player.in_penalty_box? && roll % 2 == 0
+      current_player.in_penalty_box? && roll.even?
     end
 
     def skip_turn
