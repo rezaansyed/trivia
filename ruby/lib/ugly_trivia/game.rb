@@ -47,16 +47,16 @@ end
 module UglyTrivia
   class CategorizedQuestions
     def initialize
-      @quesitions = {}
+      @questions = {}
     end
 
     def add_question(category:, question:)
-      @quesitions[category] ||= []
-      @quesitions[category] << question
+      @questions[category] ||= []
+      @questions[category] << question
     end
 
     def get_question(category:)
-      @quesitions[category].shift
+      @questions[category].shift
     end
   end
   class Game
