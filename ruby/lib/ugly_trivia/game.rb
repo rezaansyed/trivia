@@ -21,6 +21,27 @@ module GameNotifier
   def notify_correct_answer
     @output.write 'Answer was correct!!!!'
   end
+
+  def notify_coins_in_purse(player)
+    @output.write "#{player.name} now has #{player.purse} Gold Coins."
+  end
+
+  def notify_question(category:, question:)
+    @output.write "The category is #{category}"
+    @output.write question
+  end
+
+  def notify_player_not_getting_out_of_penalty(player)
+    @output.write "#{player.name} is not getting out of the penalty box"
+  end
+
+  def notify_player_getting_out_of_box(player)
+    @output.write "#{player.name} is getting out of the penalty box"
+  end
+
+  def notify_new_location(player)
+    @output.write "#{player.name}'s new location is #{player.location}"
+  end
 end
 
 module UglyTrivia
@@ -73,7 +94,7 @@ module UglyTrivia
     end
 
     def skip_turn
-      @output.write "#{current_player.name} is not getting out of the penalty box"
+      notify_player_not_getting_out_of_penalty(current_player)
       @is_getting_out_of_penalty_box = false
     end
 
@@ -86,14 +107,13 @@ module UglyTrivia
 
       if current_player.in_penalty_box?
         @is_getting_out_of_penalty_box = true
-        @output.write "#{current_player.name} is getting out of the penalty box"
+        notify_player_getting_out_of_box(current_player)
       end
 
 
       # Update locationment
       current_player.location.move(roll)
-
-      @output.write "#{current_player.name}'s new location is #{current_player.location}"
+      notify_new_location(current_player)
 
       # Ask question
       ask_question
@@ -107,7 +127,7 @@ module UglyTrivia
 
       notify_correct_answer
       current_player.purse += 1
-      @output.write "#{current_player.name} now has #{current_player.purse} Gold Coins."
+      notify_coins_in_purse(current_player)
 
       winner = did_player_win
 
@@ -134,8 +154,9 @@ module UglyTrivia
     end
 
     def ask_question
-      @output.write "The category is #{current_player.location.category}"
-      @output.write @questions.get_question(category: current_player.location.category)
+      category = current_player.location.category
+      question = @questions.get_question(category: current_player.location.category)
+      notify_question(category: category, question: question)
     end
 
     def did_player_win
