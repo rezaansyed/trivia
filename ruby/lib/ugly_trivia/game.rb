@@ -24,6 +24,20 @@ module GameNotifier
 end
 
 module UglyTrivia
+  class CategorizedQuestions
+    def initialize
+      @quesitions = {}
+    end
+
+    def add_question(category:, question:)
+      @quesitions[category] ||= []
+      @quesitions[category] << question
+    end
+
+    def get_question(category:)
+      @quesitions[category].shift
+    end
+  end
   class Game
     include GameNotifier
 
@@ -32,19 +46,15 @@ module UglyTrivia
     def initialize(output = ConsoleOutput.new)
       @output = output
       @players = TriviaPlayers.new
-
-      @pop_questions = []
-      @science_questions = []
-      @sports_questions = []
-      @rock_questions = []
+      @questions = CategorizedQuestions.new
 
       @is_getting_out_of_penalty_box = false
 
       50.times do |i|
-        @pop_questions.push "Pop Question #{i}"
-        @science_questions.push "Science Question #{i}"
-        @sports_questions.push "Sports Question #{i}"
-        @rock_questions.push "Rock Question #{i}"
+        @questions.add_question(category: 'Pop', question: "Pop Question #{i}")
+        @questions.add_question(category: 'Science', question: "Science Question #{i}")
+        @questions.add_question(category: 'Sports', question: "Sports Question #{i}")
+        @questions.add_question(category: 'Rock', question: "Rock Question #{i}")
       end
     end
 
@@ -125,10 +135,7 @@ module UglyTrivia
 
     def ask_question
       @output.write "The category is #{current_player.location.category}"
-      @output.write @pop_questions.shift if current_player.location.category == 'Pop'
-      @output.write @science_questions.shift if current_player.location.category == 'Science'
-      @output.write @sports_questions.shift if current_player.location.category == 'Sports'
-      @output.write @rock_questions.shift if current_player.location.category == 'Rock'
+      @output.write @questions.get_question(category: current_player.location.category)
     end
 
     def did_player_win

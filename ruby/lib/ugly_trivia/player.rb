@@ -22,8 +22,4 @@ class Player
   def remove_from_penalty_box
     @in_penalty_box = false
   end
-
-  def in_penalty_box_with_even_roll(roll)
-    current_player.in_penalty_box? && roll % 2 == 0
-  end
 end
