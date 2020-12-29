@@ -78,11 +78,10 @@ module UglyTrivia
         @output.write "#{current_player.name} is getting out of the penalty box"
       end
 
-      # Update placement
-      current_player.roll(roll)
+      # Update locationment
+      current_player.location.move(roll)
 
-      @output.write "#{current_player.name}'s new location is #{current_player.place}"
-      @output.write "The category is #{current_category}"
+      @output.write "#{current_player.name}'s new location is #{current_player.location}"
 
       # Ask question
       ask_question
@@ -123,17 +122,11 @@ module UglyTrivia
     end
 
     def ask_question
-      @output.write @pop_questions.shift if current_category == 'Pop'
-      @output.write @science_questions.shift if current_category == 'Science'
-      @output.write @sports_questions.shift if current_category == 'Sports'
-      @output.write @rock_questions.shift if current_category == 'Rock'
-    end
-
-    def current_category
-      return 'Pop' if current_player.place % 4 == 0
-      return 'Science' if current_player.place % 4 == 1
-      return 'Sports' if current_player.place % 4 == 2
-      return 'Rock'
+      @output.write "The category is #{current_player.current_category}"
+      @output.write @pop_questions.shift if current_player.current_category == 'Pop'
+      @output.write @science_questions.shift if current_player.current_category == 'Science'
+      @output.write @sports_questions.shift if current_player.current_category == 'Sports'
+      @output.write @rock_questions.shift if current_player.current_category == 'Rock'
     end
 
     def did_player_win
